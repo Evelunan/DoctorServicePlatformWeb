@@ -28,7 +28,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Refresh, Delete } from '@element-plus/icons-vue'
-import CompleteHealthArchive from '@/components/CompleteHealthArchive.vue'
+import CompleteHealthArchive from '@/components/health-archive/CompleteHealthArchive.vue'
 
 const archiveRef = ref()
 const currentUserId = ref(3) // 示例用户ID

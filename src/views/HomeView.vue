@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import UserProfile from '../components/UserProfile.vue'
-import HealthArchive from '../components/CompleteHealthArchive.vue'
+import HealthArchive from '@/components/health-archive/CompleteHealthArchive.vue'
 import PatientList from '../components/PatientList.vue'
 import {
   User, ArrowDown, Setting, SwitchButton,

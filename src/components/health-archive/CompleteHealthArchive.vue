@@ -72,10 +72,11 @@
 import { ref, defineExpose } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Edit, Check, Close } from '@element-plus/icons-vue'
-import PersonalInfo from './PersonalInfo.vue'
-import BasicHealthInfo from './BasicHealthInfo.vue'
-import DiseaseHistory from './DiseaseHistory.vue'
-import FamilyDiseaseHistory from './FamilyDiseaseHistory.vue'
+// import PersonalInfo from './PersonalInfo.vue'
+import PersonalInfo from '@/components/health-archive/PersonalInfo.vue'
+import BasicHealthInfo from '@/components/health-archive/BasicHealthInfo.vue'
+import DiseaseHistory from '@/components/health-archive/DiseaseHistory.vue'
+import FamilyDiseaseHistory from '@/components/health-archive/FamilyDiseaseHistory.vue'
 
 const props = defineProps({
   userId: {
