@@ -2,7 +2,7 @@ import httpInstance from '@/utils/http'
 
 // 获取医生的病人列表
 export const getPatientList = (doctorId) => {
-  return httpInstance.get(`/patient/list/${doctorId}`)
+  return httpInstance.get(`/user/getElders/${doctorId}`)
 }
 
 // 添加病人

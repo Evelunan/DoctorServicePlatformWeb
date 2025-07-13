@@ -8,7 +8,7 @@
     </template>
 
     <el-table :data="patientList" style="width: 100%" @row-click="selectPatient">
-      <el-table-column prop="name" label="姓名" width="120" />
+      <el-table-column prop="username" label="姓名" width="120" />
       <el-table-column prop="gender" label="性别" width="80">
         <template #default="scope">
           {{ scope.row.gender === 0 ? '男' : '女' }}
@@ -17,7 +17,7 @@
       <el-table-column prop="age" label="年龄" width="80" />
       <el-table-column prop="phone" label="联系电话" width="140" />
       <el-table-column prop="address" label="地址" />
-      <el-table-column prop="lastVisit" label="最近随访" width="120" />
+      <!-- <el-table-column prop="lastVisit" label="最近随访" width="120" /> -->
       <el-table-column label="操作" width="150">
         <template #default="scope">
           <el-button size="small" @click.stop="viewArchive(scope.row)">查看档案</el-button>
