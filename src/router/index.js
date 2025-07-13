@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import HealthArchiveView from '@/views/HealthArchiveView.vue'
+import FollowUpView from '@/views/FollowUpView.vue'
 
 
 const router = createRouter({
@@ -28,6 +29,11 @@ const router = createRouter({
       path: '/health-archive',
       name: 'health-archive',
       component: HealthArchiveView,
+    },
+    {
+      path: '/follow-up',
+      name: 'follow-up',
+      component: FollowUpView,
     },
   ],
 })

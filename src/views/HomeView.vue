@@ -1,8 +1,10 @@
 <script setup>
+
 import { ref, computed } from 'vue'
 import UserProfile from '../components/UserProfile.vue'
 import HealthArchive from '@/components/health-archive/CompleteHealthArchive.vue'
 import PatientList from '../components/PatientList.vue'
+import FollowUpView from './FollowUpView.vue'
 import {
   User, ArrowDown, Setting, SwitchButton,
   UserFilled, Document, Edit, DataAnalysis, FolderOpened,
@@ -16,6 +18,9 @@ function handleMenuSelect(index) {
 }
 
 const currentComponent = computed(() => {
+  if (activeMenu.value.startsWith('4-')) {
+    return null
+  }
   if (activeMenu.value === '1-1') {
     return UserProfile
   }
@@ -25,15 +30,13 @@ const currentComponent = computed(() => {
   if (activeMenu.value === '2-2') {
     return HealthArchive
   }
+
   const map = {
     '2-3': { template: '<div>体检指标/用药/生活习惯功能区</div>' },
     '2-4': { template: '<div>附件管理/导出功能区</div>' },
     '3-1': { template: '<div>预警规则管理功能区</div>' },
     '3-2': { template: '<div>预警处理功能区</div>' },
     '3-3': { template: '<div>预警历史查询功能区</div>' },
-    '4-1': { template: '<div>随访计划制定功能区</div>' },
-    '4-2': { template: '<div>随访记录填写功能区</div>' },
-    '4-3': { template: '<div>随访历史管理功能区</div>' },
     '5-1': { template: '<div>干预措施制定功能区</div>' },
     '5-2': { template: '<div>健康评估报告功能区</div>' },
     '5-3': { template: '<div>历史评估管理功能区</div>' },
@@ -147,17 +150,22 @@ const currentComponent = computed(() => {
                 <span>重点人群随访管理</span>
               </template>
               <el-menu-item index="4-1">
+                <el-icon><FolderOpened /></el-icon>
+                随访计划列表
+              </el-menu-item>
+              <el-menu-item index="4-2">
                 <el-icon><Plus /></el-icon>
                 随访计划制定
               </el-menu-item>
-              <el-menu-item index="4-2">
+              <el-menu-item index="4-3">
                 <el-icon><Edit /></el-icon>
                 随访记录填写
               </el-menu-item>
-              <el-menu-item index="4-3">
+              <el-menu-item index="4-4">
                 <el-icon><Document /></el-icon>
                 随访历史管理
               </el-menu-item>
+              
             </el-sub-menu>
             <el-sub-menu index="5">
               <template #title>
@@ -180,7 +188,12 @@ const currentComponent = computed(() => {
           </el-menu>
         </el-aside>
         <el-main class="main">
-          <component :is="currentComponent" />
+          <div v-if="activeMenu.startsWith('4-')">
+            <FollowUpView :active-sub-menu="activeMenu" />
+          </div>
+          <div v-else>
+            <component :is="currentComponent" />
+          </div>
         </el-main>
       </el-container>
     </el-container>
