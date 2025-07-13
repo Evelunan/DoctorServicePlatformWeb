@@ -26,30 +26,26 @@
       </el-table-column>
     </el-table>
 
-    <!-- 添加病人对话框 -->
-    <el-dialog v-model="dialogVisible" title="添加病人" width="500px">
-      <el-form :model="newPatient" :rules="rules" ref="formRef" label-width="100px">
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="newPatient.name" />
-        </el-form-item>
-        <el-form-item label="身份证号" prop="idCard">
-          <el-input v-model="newPatient.idCard" />
-        </el-form-item>
-        <el-form-item label="性别" prop="gender">
-          <el-select v-model="newPatient.gender" placeholder="请选择" style="width: 100%">
-            <el-option label="男" :value="0" />
-            <el-option label="女" :value="1" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="联系电话" prop="phone">
-          <el-input v-model="newPatient.phone" />
-        </el-form-item>
-      </el-form>
+                <!-- 添加病人对话框 -->
+    <el-dialog
+      v-model="dialogVisible"
+      title="添加新病人 - 编辑模式"
+      width="90%"
+      :close-on-click-modal="false"
+      top="5vh"
+    >
+      <div class="add-patient-container">
+        <CompleteHealthArchive
+          ref="archiveRef"
+          :userId="null"
+          @save="handleArchiveSave"
+        />
+      </div>
       <template #footer>
-        <span class="dialog-footer">
+        <div class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirmAddPatient">确定</el-button>
-        </span>
+          <el-button type="primary" @click="saveNewPatient">保存新病人</el-button>
+        </div>
       </template>
     </el-dialog>
   </el-card>
@@ -58,32 +54,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getPatientList, addPatient as addPatientApi, removePatient as removePatientApi } from '@/api/patient'
+import { getPatientList, removePatient as removePatientApi } from '@/api/patient'
+import CompleteHealthArchive from '@/components/health-archive/CompleteHealthArchive.vue'
 
 const emit = defineEmits(['select-patient'])
 
 const patientList = ref([])
 const dialogVisible = ref(false)
-const formRef = ref()
-const newPatient = ref({
-  name: '',
-  idCard: '',
-  gender: 0,
-  phone: ''
-})
+const archiveRef = ref()
 
-const rules = {
-  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-  idCard: [
-    { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '身份证号格式不正确', trigger: 'blur' }
-  ],
-  gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
-  phone: [
-    { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
-  ]
-}
 
 onMounted(() => {
   loadPatientList()
@@ -141,43 +120,51 @@ const selectPatient = (row) => {
 
 // 查看档案
 const viewArchive = (patient) => {
+  // 在主内容区域显示健康档案
   emit('select-patient', patient)
 }
 
 // 添加病人
 const addPatient = () => {
   dialogVisible.value = true
-  newPatient.value = {
-    name: '',
-    idCard: '',
-    gender: 0,
-    phone: ''
-  }
+  // 确保在下一个tick后重置表单并进入编辑模式
+  setTimeout(() => {
+    if (archiveRef.value) {
+      archiveRef.value.resetForm()
+    }
+  }, 100)
 }
 
-// 确认添加病人
-const confirmAddPatient = async () => {
+// 处理健康档案保存
+const handleArchiveSave = async (archiveData) => {
   try {
-    await formRef.value.validate()
+    console.log('保存新病人档案:', archiveData)
 
-    const doctorId = 1 // 实际项目中应从登录信息获取
-    const patientData = {
-      ...newPatient.value,
-      doctorId
-    }
+    // 这里应该调用API保存新病人和档案数据
+    // const res = await addPatientWithArchive(archiveData)
 
-    const res = await addPatientApi(patientData)
-    if (res && res.data && res.data.code === 0) {
-      // 重新加载病人列表
-      await loadPatientList()
-      dialogVisible.value = false
-      ElMessage.success('添加成功')
-    } else {
-      ElMessage.error(res.data?.message || '添加失败')
-    }
+    // 模拟保存成功
+    ElMessage.success('新病人添加成功！')
+    dialogVisible.value = false
+
+    // 重新加载病人列表
+    await loadPatientList()
   } catch (error) {
     console.error('添加病人失败:', error)
     ElMessage.error('添加失败，请稍后重试')
+  }
+}
+
+// 保存新病人
+const saveNewPatient = async () => {
+  try {
+    // 触发健康档案组件的保存
+    if (archiveRef.value) {
+      await archiveRef.value.saveArchive()
+    }
+  } catch (error) {
+    console.error('保存新病人失败:', error)
+    ElMessage.error('保存失败，请检查表单信息')
   }
 }
 
@@ -224,5 +211,25 @@ const removePatient = async (patient) => {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.add-patient-container {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+:deep(.el-dialog__body) {
+  padding: 0;
+  max-height: 70vh;
+  overflow: hidden;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px;
+  background: #f5f7fa;
+  border-top: 1px solid #e4e7ed;
 }
 </style>

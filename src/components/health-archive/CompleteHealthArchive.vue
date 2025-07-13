@@ -5,11 +5,11 @@
         <div class="card-header">
           <h2>健康档案</h2>
           <div class="header-actions">
-            <el-button v-if="!editMode" type="primary" @click="startEdit">
+            <el-button v-if="!editMode && props.userId" type="primary" @click="startEdit">
               <el-icon><Edit /></el-icon>
               编辑档案
             </el-button>
-            <div v-else class="edit-actions">
+            <div v-else-if="props.userId" class="edit-actions">
               <el-button type="primary" @click="saveArchive">
                 <el-icon><Check /></el-icon>
                 保存
@@ -69,7 +69,7 @@
 </template>
 
 <script setup>
-import { ref, defineExpose } from 'vue'
+import { ref, defineExpose, watch, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Edit, Check, Close } from '@element-plus/icons-vue'
 // import PersonalInfo from './PersonalInfo.vue'
@@ -144,7 +144,10 @@ const saveArchive = async () => {
     // 触发保存事件
     emit('save', archiveData)
 
-    editMode.value = false
+    // 只有在查看现有档案时才退出编辑模式
+    if (props.userId) {
+      editMode.value = false
+    }
     ElMessage.success('保存成功')
   } catch (error) {
     console.error('保存失败:', error)
@@ -184,6 +187,170 @@ const resetForm = () => {
   diseaseHistoryRef.value?.setFormData([])
   familyDiseaseHistoryRef.value?.setFormData([])
 }
+
+// 获取病人档案数据（模拟数据）
+const getPatientArchiveData = (patientId) => {
+  const archiveDataMap = {
+    1: {
+      personalInfo: {
+        id: 1,
+        account: "zhangsan",
+        username: "张三",
+        gender: 0,
+        address: "北京市朝阳区",
+        birthdate: "1959-03-15",
+        phone: "13800000001",
+        doctorId: 1,
+        type: null
+      },
+      basicHealthInfo: {
+        id: 1,
+        height: 170.0,
+        weight: 75.0,
+        bloodType: 1, // B型
+        allergies: "对花粉过敏",
+        disability: 0,
+        userId: 1
+      },
+      diseaseHistory: [
+        {
+          id: 1,
+          diseaseName: "高血压",
+          diagnosisDate: "2015-06-20",
+          status: "治疗中",
+          notes: "中度高血压，需要长期服药控制",
+          userId: 1
+        }
+      ],
+      familyDiseaseHistory: [
+        {
+          id: 1,
+          relation: "父亲",
+          diseaseName: "高血压",
+          notes: "父亲有高血压病史",
+          userId: 1
+        }
+      ]
+    },
+    2: {
+      personalInfo: {
+        id: 2,
+        account: "lisi",
+        username: "李四",
+        gender: 1,
+        address: "北京市海淀区",
+        birthdate: "1952-08-10",
+        phone: "13800000002",
+        doctorId: 1,
+        type: null
+      },
+      basicHealthInfo: {
+        id: 2,
+        height: 158.0,
+        weight: 62.0,
+        bloodType: 3, // O型
+        allergies: "无",
+        disability: 0,
+        userId: 2
+      },
+      diseaseHistory: [
+        {
+          id: 2,
+          diseaseName: "糖尿病",
+          diagnosisDate: "2010-12-05",
+          status: "治疗中",
+          notes: "2型糖尿病，通过饮食和药物控制",
+          userId: 2
+        }
+      ],
+      familyDiseaseHistory: [
+        {
+          id: 2,
+          relation: "母亲",
+          diseaseName: "糖尿病",
+          notes: "母亲有糖尿病病史",
+          userId: 2
+        }
+      ]
+    },
+    3: {
+      personalInfo: {
+        id: 3,
+        account: "wangwu",
+        username: "王五",
+        gender: 0,
+        address: "北京市西城区",
+        birthdate: "1966-11-25",
+        phone: "13800000003",
+        doctorId: 1,
+        type: null
+      },
+      basicHealthInfo: {
+        id: 3,
+        height: 175.0,
+        weight: 80.0,
+        bloodType: 0, // A型
+        allergies: "对海鲜过敏",
+        disability: 0,
+        userId: 3
+      },
+      diseaseHistory: [
+        {
+          id: 3,
+          diseaseName: "心脏病",
+          diagnosisDate: "2018-03-10",
+          status: "治疗中",
+          notes: "冠心病，需要定期复查",
+          userId: 3
+        }
+      ],
+      familyDiseaseHistory: [
+        {
+          id: 3,
+          relation: "祖父",
+          diseaseName: "心脏病",
+          notes: "祖父因心脏病去世",
+          userId: 3
+        }
+      ]
+    }
+  }
+
+  return archiveDataMap[patientId] || null
+}
+
+// 监听userId变化，自动加载对应的病人档案
+watch(() => props.userId, (newUserId) => {
+  if (newUserId) {
+    const patientData = getPatientArchiveData(newUserId)
+    if (patientData) {
+      loadArchiveData(patientData)
+      editMode.value = false // 查看现有档案时，默认非编辑模式
+    }
+  } else {
+    resetForm()
+    editMode.value = true // 添加新病人时，默认进入编辑模式
+  }
+}, { immediate: true })
+
+// 监听编辑模式变化，在添加新病人时自动进入编辑模式
+watch(() => editMode.value, (newEditMode) => {
+  if (!props.userId && !newEditMode) {
+    // 如果是添加新病人且不在编辑模式，自动进入编辑模式
+    editMode.value = true
+  }
+})
+
+onMounted(() => {
+  // 设置医生列表
+  const doctorList = [
+    { id: 1, name: '张医生' },
+    { id: 2, name: '李医生' },
+    { id: 3, name: '王医生' },
+    { id: 4, name: '刘医生' }
+  ]
+  setDoctorList(doctorList)
+})
 
 defineExpose({
   loadArchiveData,

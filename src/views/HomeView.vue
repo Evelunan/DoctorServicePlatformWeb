@@ -6,13 +6,32 @@ import PatientList from '../components/PatientList.vue'
 import {
   User, ArrowDown, Setting, SwitchButton,
   UserFilled, Document, Edit, DataAnalysis, FolderOpened,
-  Warning, Bell, Clock, Calendar, Plus, Tools
+  Warning, Bell, Clock, Calendar, Plus, Tools, ArrowLeft
 } from '@element-plus/icons-vue'
 
 const activeMenu = ref('1-1')
+const selectedPatient = ref(null)
+const showHealthArchive = ref(false)
 
 function handleMenuSelect(index) {
   activeMenu.value = index
+  // 如果切换到其他菜单，隐藏健康档案
+  if (index !== '2-1') {
+    showHealthArchive.value = false
+    selectedPatient.value = null
+  }
+}
+
+// 处理病人选择
+function handlePatientSelect(patient) {
+  selectedPatient.value = patient
+  showHealthArchive.value = true
+}
+
+// 处理健康档案保存
+function handleArchiveSave(archiveData) {
+  console.log('保存健康档案:', archiveData)
+  // 这里可以调用API保存数据
 }
 
 const currentComponent = computed(() => {
@@ -180,7 +199,28 @@ const currentComponent = computed(() => {
           </el-menu>
         </el-aside>
         <el-main class="main">
-          <component :is="currentComponent" />
+          <!-- 病人管理页面 -->
+          <div v-if="activeMenu === '2-1' && !showHealthArchive">
+            <PatientList @select-patient="handlePatientSelect" />
+          </div>
+
+          <!-- 健康档案页面 -->
+          <div v-else-if="activeMenu === '2-1' && showHealthArchive">
+            <div class="archive-header">
+              <el-button @click="showHealthArchive = false" type="primary" plain>
+                <el-icon><ArrowLeft /></el-icon>
+                返回病人列表
+              </el-button>
+              <h2 v-if="selectedPatient">查看 {{ selectedPatient.name }} 的健康档案</h2>
+            </div>
+            <HealthArchive
+              :userId="selectedPatient?.id"
+              @save="handleArchiveSave"
+            />
+          </div>
+
+          <!-- 其他页面 -->
+          <component v-else :is="currentComponent" />
         </el-main>
       </el-container>
     </el-container>
@@ -297,6 +337,24 @@ const currentComponent = computed(() => {
   padding: 24px;
   box-sizing: border-box;
   overflow: auto;
+}
+
+.archive-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.archive-header h2 {
+  margin: 0;
+  color: #303133;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 /* 响应式设计 */
