@@ -75,8 +75,7 @@ onMounted(() => {
 // 加载病人列表
 const loadPatientList = async () => {
   try {
-    const doctorId = userStore.userId || 1 // 从用户store获取医生ID
-    const res = await getPatientList(doctorId)
+    const res = await getPatientList()
     if (res && res.data && res.data.code === 0) {
       patientList.value = res.data.data || []
     } else {
