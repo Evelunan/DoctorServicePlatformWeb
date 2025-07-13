@@ -1,20 +1,68 @@
 <script setup>
-
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import UserProfile from '../components/UserProfile.vue'
 import HealthArchive from '@/components/health-archive/CompleteHealthArchive.vue'
 import PatientList from '../components/PatientList.vue'
+import { useUserStore } from '@/stores/user'
 import FollowUpView from './FollowUpView.vue'
 import {
   User, ArrowDown, Setting, SwitchButton,
-  UserFilled, Document, Edit, DataAnalysis, FolderOpened,
-  Warning, Bell, Clock, Calendar, Plus, Tools
+  UserFilled, Document, DataAnalysis,
+  Warning, Bell, Clock, Calendar, Plus, Tools, ArrowLeft, Lock
 } from '@element-plus/icons-vue'
 
+const router = useRouter()
+const userStore = useUserStore()
 const activeMenu = ref('1-1')
+const selectedPatient = ref(null)
+const showHealthArchive = ref(false)
+
+// 检查登录状态
+onMounted(async () => {
+  const isLoggedIn = await userStore.checkAuth()
+  if (!isLoggedIn) {
+    router.push('/login')
+  }
+})
 
 function handleMenuSelect(index) {
   activeMenu.value = index
+  // 如果切换到其他菜单，隐藏健康档案
+  if (index !== '2-1') {
+    showHealthArchive.value = false
+    selectedPatient.value = null
+  }
+}
+
+// 处理病人选择
+function handlePatientSelect(patient) {
+  selectedPatient.value = patient
+  showHealthArchive.value = true
+}
+
+// 处理健康档案保存
+function handleArchiveSave(archiveData) {
+  console.log('保存健康档案:', archiveData)
+  // 这里可以调用API保存数据
+}
+
+// 处理个人信息
+function handleProfile() {
+  activeMenu.value = '1-1'
+}
+
+// 处理修改密码
+function handleChangePassword() {
+  // 这里可以打开修改密码对话框或跳转到修改密码页面
+  ElMessage.info('修改密码功能开发中...')
+}
+
+// 处理登出
+function handleLogout() {
+  userStore.logout()
+  router.push('/login')
 }
 
 const currentComponent = computed(() => {
@@ -27,13 +75,7 @@ const currentComponent = computed(() => {
   if (activeMenu.value === '2-1') {
     return PatientList
   }
-  if (activeMenu.value === '2-2') {
-    return HealthArchive
-  }
-
   const map = {
-    '2-3': { template: '<div>体检指标/用药/生活习惯功能区</div>' },
-    '2-4': { template: '<div>附件管理/导出功能区</div>' },
     '3-1': { template: '<div>预警规则管理功能区</div>' },
     '3-2': { template: '<div>预警处理功能区</div>' },
     '3-3': { template: '<div>预警历史查询功能区</div>' },
@@ -60,20 +102,20 @@ const currentComponent = computed(() => {
                 <el-avatar :size="32" src="">
                   <el-icon><User /></el-icon>
                 </el-avatar>
-                <span class="username">医生</span>
+                <span class="username">{{ userStore.userName || '医生' }}</span>
                 <el-icon><ArrowDown /></el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item>
+                  <el-dropdown-item @click="handleProfile">
                     <el-icon><User /></el-icon>
                     个人信息
                   </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-icon><Setting /></el-icon>
-                    系统设置
+                  <el-dropdown-item @click="handleChangePassword">
+                    <el-icon><Lock /></el-icon>
+                    修改密码
                   </el-dropdown-item>
-                  <el-dropdown-item divided>
+                  <el-dropdown-item divided @click="handleLogout">
                     <el-icon><SwitchButton /></el-icon>
                     退出登录
                   </el-dropdown-item>
@@ -94,7 +136,7 @@ const currentComponent = computed(() => {
             text-color="#2c3e50"
             active-text-color="#409eff"
           >
-            <el-sub-menu index="1">
+            <el-sub-menu index="1" v-if="userStore.isAdmin">
               <template #title>
                 <el-icon><User /></el-icon>
                 <span>用户管理</span>
@@ -107,23 +149,11 @@ const currentComponent = computed(() => {
             <el-sub-menu index="2">
               <template #title>
                 <el-icon><Document /></el-icon>
-                <span>老人健康档案管理</span>
+                <span>健康档案管理</span>
               </template>
               <el-menu-item index="2-1">
                 <el-icon><UserFilled /></el-icon>
                 病人管理
-              </el-menu-item>
-              <el-menu-item index="2-2">
-                <el-icon><Edit /></el-icon>
-                新建/编辑健康档案
-              </el-menu-item>
-              <el-menu-item index="2-3">
-                <el-icon><DataAnalysis /></el-icon>
-                体检指标/用药/生活习惯
-              </el-menu-item>
-              <el-menu-item index="2-4">
-                <el-icon><FolderOpened /></el-icon>
-                附件管理/导出
               </el-menu-item>
             </el-sub-menu>
             <el-sub-menu index="3">
@@ -188,6 +218,33 @@ const currentComponent = computed(() => {
           </el-menu>
         </el-aside>
         <el-main class="main">
+          <!-- 个人信息页面 -->
+          <div v-if="activeMenu === '1-1'">
+            <UserProfile />
+          </div>
+
+          <!-- 病人管理页面 -->
+          <div v-else-if="activeMenu === '2-1' && !showHealthArchive">
+            <PatientList @select-patient="handlePatientSelect" />
+          </div>
+
+          <!-- 健康档案页面 -->
+          <div v-else-if="activeMenu === '2-1' && showHealthArchive">
+            <div class="archive-header">
+              <el-button @click="showHealthArchive = false" type="primary" plain>
+                <el-icon><ArrowLeft /></el-icon>
+                返回病人列表
+              </el-button>
+              <h2 v-if="selectedPatient">查看 {{ selectedPatient.name }} 的健康档案</h2>
+            </div>
+            <HealthArchive
+              :userId="selectedPatient?.id"
+              @save="handleArchiveSave"
+            />
+          </div>
+
+          <!-- 其他页面 -->
+          <component v-else :is="currentComponent" />
           <div v-if="activeMenu.startsWith('4-')">
             <FollowUpView :active-sub-menu="activeMenu" />
           </div>
@@ -310,6 +367,24 @@ const currentComponent = computed(() => {
   padding: 24px;
   box-sizing: border-box;
   overflow: auto;
+}
+
+.archive-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.archive-header h2 {
+  margin: 0;
+  color: #303133;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 /* 响应式设计 */

@@ -14,9 +14,9 @@ export const register = (account, password) => {
   })
 }
 
-// 获取用户信息
-export const getUser = (id) => {
-  return httpInstance.get(`/user/getUser/${id}`)
+// 获取当前用户信息（根据token获取）
+export const getCurrentUser = () => {
+  return httpInstance.get('/user/getCurrentUser')
 }
 
 // 更新用户信息

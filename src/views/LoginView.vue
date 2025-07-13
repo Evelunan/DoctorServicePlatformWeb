@@ -96,8 +96,10 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
 import { login } from '@/api/user'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 const formRef = ref()
 const loading = ref(false)
 const error = ref('')
@@ -127,6 +129,9 @@ const handleLogin = async () => {
 
     const res = await login(form.account, form.password)
     if (res.data.code === 0) {
+      // 保存token
+      userStore.login(res.data.data)
+
       ElMessage.success('登录成功')
       // 保存登录状态
       if (rememberMe.value) {

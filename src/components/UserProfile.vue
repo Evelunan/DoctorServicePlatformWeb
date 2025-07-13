@@ -133,11 +133,13 @@ import {
   UserFilled, Location, Check, Close
 } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
-import { getUser, updateUser } from '../api/user'
+import { updateUser } from '../api/user'
+import { useUserStore } from '@/stores/user'
 
-const userId = 1 // 实际项目中应从登录信息获取
+const userStore = useUserStore()
 const formRef = ref()
 const editMode = ref(false)
+const originalForm = ref({}) // 保存原始数据
 const form = ref({
   id: '',
   account: '',
@@ -184,14 +186,24 @@ const avatarUrl = computed(() => {
 
 onMounted(async () => {
   try {
-    const res = await getUser(userId)
-    if (res && res.data && res.data.code === 0 && res.data.data) {
-      const user = res.data.data
-      Object.assign(form.value, user)
+    // 从用户store获取当前用户信息
+    if (userStore.userInfo) {
+      Object.assign(form.value, userStore.userInfo)
+      // 保存原始数据
+      Object.assign(originalForm.value, userStore.userInfo)
     } else {
-      ElMessage.error('获取用户信息失败')
+      // 如果store中没有用户信息，重新获取
+      await userStore.fetchUserInfo()
+      if (userStore.userInfo) {
+        Object.assign(form.value, userStore.userInfo)
+        // 保存原始数据
+        Object.assign(originalForm.value, userStore.userInfo)
+      } else {
+        ElMessage.error('获取用户信息失败')
+      }
     }
-  } catch {
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
     ElMessage.error('获取用户信息失败')
   }
 })
@@ -202,6 +214,8 @@ async function onSave() {
       try {
         const res = await updateUser(form.value)
         if (res && res.data && res.data.code === 0) {
+          // 同步更新用户store中的信息
+          userStore.setUserInfo(form.value)
           editMode.value = false
           ElMessage.success('保存成功')
         } else {
@@ -215,6 +229,8 @@ async function onSave() {
 }
 
 function onCancel() {
+  // 重置表单为原始数据
+  Object.assign(form.value, originalForm.value)
   editMode.value = false
 }
 </script>
