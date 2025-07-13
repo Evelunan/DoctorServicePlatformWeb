@@ -243,14 +243,12 @@ const currentComponent = computed(() => {
             />
           </div>
 
-          <!-- 其他页面 -->
-          <component v-else :is="currentComponent" />
-          <div v-if="activeMenu.startsWith('4-')">
+          <div v-else-if="activeMenu.startsWith('4-')">
             <FollowUpView :active-sub-menu="activeMenu" />
           </div>
-          <div v-else>
-            <component :is="currentComponent" />
-          </div>
+
+          <!-- 其他页面 -->
+          <component v-else :is="currentComponent" />
         </el-main>
       </el-container>
     </el-container>
