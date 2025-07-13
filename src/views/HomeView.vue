@@ -5,7 +5,7 @@ import HealthArchive from '@/components/health-archive/CompleteHealthArchive.vue
 import PatientList from '../components/PatientList.vue'
 import {
   User, ArrowDown, Setting, SwitchButton,
-  UserFilled, Document, Edit, DataAnalysis, FolderOpened,
+  UserFilled, Document, DataAnalysis,
   Warning, Bell, Clock, Calendar, Plus, Tools, ArrowLeft
 } from '@element-plus/icons-vue'
 
@@ -41,12 +41,7 @@ const currentComponent = computed(() => {
   if (activeMenu.value === '2-1') {
     return PatientList
   }
-  if (activeMenu.value === '2-2') {
-    return HealthArchive
-  }
   const map = {
-    '2-3': { template: '<div>体检指标/用药/生活习惯功能区</div>' },
-    '2-4': { template: '<div>附件管理/导出功能区</div>' },
     '3-1': { template: '<div>预警规则管理功能区</div>' },
     '3-2': { template: '<div>预警处理功能区</div>' },
     '3-3': { template: '<div>预警历史查询功能区</div>' },
@@ -123,23 +118,11 @@ const currentComponent = computed(() => {
             <el-sub-menu index="2">
               <template #title>
                 <el-icon><Document /></el-icon>
-                <span>老人健康档案管理</span>
+                <span>健康档案管理</span>
               </template>
               <el-menu-item index="2-1">
                 <el-icon><UserFilled /></el-icon>
                 病人管理
-              </el-menu-item>
-              <el-menu-item index="2-2">
-                <el-icon><Edit /></el-icon>
-                新建/编辑健康档案
-              </el-menu-item>
-              <el-menu-item index="2-3">
-                <el-icon><DataAnalysis /></el-icon>
-                体检指标/用药/生活习惯
-              </el-menu-item>
-              <el-menu-item index="2-4">
-                <el-icon><FolderOpened /></el-icon>
-                附件管理/导出
               </el-menu-item>
             </el-sub-menu>
             <el-sub-menu index="3">

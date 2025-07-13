@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
-import HealthArchiveView from '@/views/HealthArchiveView.vue'
 
 
 const router = createRouter({
@@ -22,13 +21,7 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: RegisterView,
-    },
-
-    {
-      path: '/health-archive',
-      name: 'health-archive',
-      component: HealthArchiveView,
-    },
+    }
   ],
 })
 

@@ -7,14 +7,14 @@
       </div>
     </template>
 
-    <el-table :data="patientList" style="width: 100%" @row-click="selectPatient">
+    <el-table :data="patientList" style="width: 100%">
       <el-table-column prop="username" label="姓名" width="120" />
       <el-table-column prop="gender" label="性别" width="80">
         <template #default="scope">
           {{ scope.row.gender === 0 ? '男' : '女' }}
         </template>
       </el-table-column>
-      <el-table-column prop="age" label="年龄" width="80" />
+      <el-table-column prop="birthdate" label="出生日期" width="120" />
       <el-table-column prop="phone" label="联系电话" width="140" />
       <el-table-column prop="address" label="地址" />
       <!-- <el-table-column prop="lastVisit" label="最近随访" width="120" /> -->
@@ -64,6 +64,8 @@ const dialogVisible = ref(false)
 const archiveRef = ref()
 
 
+
+
 onMounted(() => {
   loadPatientList()
 })
@@ -82,7 +84,7 @@ const loadPatientList = async () => {
           id: 1,
           name: '张三',
           gender: 0,
-          age: 65,
+          birthdate: '1959-03-15',
           phone: '13800000001',
           address: '北京市朝阳区',
           lastVisit: '2024-01-15'
@@ -91,7 +93,7 @@ const loadPatientList = async () => {
           id: 2,
           name: '李四',
           gender: 1,
-          age: 72,
+          birthdate: '1952-07-22',
           phone: '13800000002',
           address: '北京市海淀区',
           lastVisit: '2024-01-10'
@@ -100,7 +102,7 @@ const loadPatientList = async () => {
           id: 3,
           name: '王五',
           gender: 0,
-          age: 58,
+          birthdate: '1966-11-08',
           phone: '13800000003',
           address: '北京市西城区',
           lastVisit: '2024-01-08'
@@ -111,11 +113,6 @@ const loadPatientList = async () => {
     console.error('加载病人列表失败:', error)
     ElMessage.error('加载病人列表失败')
   }
-}
-
-// 选择病人
-const selectPatient = (row) => {
-  emit('select-patient', row)
 }
 
 // 查看档案
