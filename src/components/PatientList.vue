@@ -56,8 +56,10 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getPatientList, removePatient as removePatientApi } from '@/api/patient'
 import CompleteHealthArchive from '@/components/health-archive/CompleteHealthArchive.vue'
+import { useUserStore } from '@/stores/user'
 
 const emit = defineEmits(['select-patient'])
+const userStore = useUserStore()
 
 const patientList = ref([])
 const dialogVisible = ref(false)
@@ -73,7 +75,7 @@ onMounted(() => {
 // 加载病人列表
 const loadPatientList = async () => {
   try {
-    const doctorId = 1 // 实际项目中应从登录信息获取
+    const doctorId = userStore.userId || 1 // 从用户store获取医生ID
     const res = await getPatientList(doctorId)
     if (res && res.data && res.data.code === 0) {
       patientList.value = res.data.data || []
@@ -174,7 +176,7 @@ const removePatient = async (patient) => {
       type: 'warning'
     })
 
-    const doctorId = 1 // 实际项目中应从登录信息获取
+    const doctorId = userStore.userId || 1 // 从用户store获取医生ID
     const res = await removePatientApi(patient.id, doctorId)
     if (res && res.data && res.data.code === 0) {
       // 重新加载病人列表

@@ -1,17 +1,30 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import UserProfile from '../components/UserProfile.vue'
 import HealthArchive from '@/components/health-archive/CompleteHealthArchive.vue'
 import PatientList from '../components/PatientList.vue'
+import { useUserStore } from '@/stores/user'
 import {
   User, ArrowDown, Setting, SwitchButton,
   UserFilled, Document, DataAnalysis,
-  Warning, Bell, Clock, Calendar, Plus, Tools, ArrowLeft
+  Warning, Bell, Clock, Calendar, Plus, Tools, ArrowLeft, Lock
 } from '@element-plus/icons-vue'
 
+const router = useRouter()
+const userStore = useUserStore()
 const activeMenu = ref('1-1')
 const selectedPatient = ref(null)
 const showHealthArchive = ref(false)
+
+// 检查登录状态
+onMounted(async () => {
+  const isLoggedIn = await userStore.checkAuth()
+  if (!isLoggedIn) {
+    router.push('/login')
+  }
+})
 
 function handleMenuSelect(index) {
   activeMenu.value = index
@@ -32,6 +45,23 @@ function handlePatientSelect(patient) {
 function handleArchiveSave(archiveData) {
   console.log('保存健康档案:', archiveData)
   // 这里可以调用API保存数据
+}
+
+// 处理个人信息
+function handleProfile() {
+  activeMenu.value = '1-1'
+}
+
+// 处理修改密码
+function handleChangePassword() {
+  // 这里可以打开修改密码对话框或跳转到修改密码页面
+  ElMessage.info('修改密码功能开发中...')
+}
+
+// 处理登出
+function handleLogout() {
+  userStore.logout()
+  router.push('/login')
 }
 
 const currentComponent = computed(() => {
@@ -71,20 +101,20 @@ const currentComponent = computed(() => {
                 <el-avatar :size="32" src="">
                   <el-icon><User /></el-icon>
                 </el-avatar>
-                <span class="username">医生</span>
+                <span class="username">{{ userStore.userName || '医生' }}</span>
                 <el-icon><ArrowDown /></el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item>
+                  <el-dropdown-item @click="handleProfile">
                     <el-icon><User /></el-icon>
                     个人信息
                   </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-icon><Setting /></el-icon>
-                    系统设置
+                  <el-dropdown-item @click="handleChangePassword">
+                    <el-icon><Lock /></el-icon>
+                    修改密码
                   </el-dropdown-item>
-                  <el-dropdown-item divided>
+                  <el-dropdown-item divided @click="handleLogout">
                     <el-icon><SwitchButton /></el-icon>
                     退出登录
                   </el-dropdown-item>
@@ -105,7 +135,7 @@ const currentComponent = computed(() => {
             text-color="#2c3e50"
             active-text-color="#409eff"
           >
-            <el-sub-menu index="1">
+            <el-sub-menu index="1" v-if="userStore.isAdmin">
               <template #title>
                 <el-icon><User /></el-icon>
                 <span>用户管理</span>
@@ -182,8 +212,13 @@ const currentComponent = computed(() => {
           </el-menu>
         </el-aside>
         <el-main class="main">
+          <!-- 个人信息页面 -->
+          <div v-if="activeMenu === '1-1'">
+            <UserProfile />
+          </div>
+
           <!-- 病人管理页面 -->
-          <div v-if="activeMenu === '2-1' && !showHealthArchive">
+          <div v-else-if="activeMenu === '2-1' && !showHealthArchive">
             <PatientList @select-patient="handlePatientSelect" />
           </div>
 
