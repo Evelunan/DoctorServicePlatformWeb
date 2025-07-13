@@ -54,7 +54,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getPatientList, removePatient as removePatientApi } from '@/api/patient'
+import { getPatientList, removePatient as removePatientApi, getPatientArchive } from '@/api/patient'
 import CompleteHealthArchive from '@/components/health-archive/CompleteHealthArchive.vue'
 import { useUserStore } from '@/stores/user'
 
@@ -117,9 +117,20 @@ const loadPatientList = async () => {
 }
 
 // 查看档案
-const viewArchive = (patient) => {
-  // 在主内容区域显示健康档案
-  emit('select-patient', patient)
+const viewArchive = async (patient) => {
+  try {
+    // 调用API获取病人档案信息
+    const res = await getPatientArchive(patient.id)
+    if (res && res.data && res.data.code === 0) {
+      // 将档案信息传递给父组件
+      emit('select-patient', res.data.data)
+    } else {
+      ElMessage.error('获取档案信息失败')
+    }
+  } catch (error) {
+    console.error('获取档案信息失败:', error)
+    ElMessage.error('获取档案信息失败')
+  }
 }
 
 // 添加病人

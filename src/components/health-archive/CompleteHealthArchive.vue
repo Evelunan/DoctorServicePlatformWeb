@@ -5,11 +5,11 @@
         <div class="card-header">
           <h2>健康档案</h2>
           <div class="header-actions">
-            <el-button v-if="!editMode && props.userId" type="primary" @click="startEdit">
+            <el-button v-if="!editMode && (props.userId || props.patientData)" type="primary" @click="startEdit">
               <el-icon><Edit /></el-icon>
               编辑档案
             </el-button>
-            <div v-else-if="props.userId" class="edit-actions">
+            <div v-else-if="props.userId || props.patientData" class="edit-actions">
               <el-button type="primary" @click="saveArchive">
                 <el-icon><Check /></el-icon>
                 保存
@@ -82,6 +82,10 @@ const props = defineProps({
   userId: {
     type: [Number, String],
     default: null
+  },
+  patientData: {
+    type: Object,
+    default: null
   }
 })
 
@@ -94,6 +98,52 @@ const personalInfoRef = ref()
 const basicHealthInfoRef = ref()
 const diseaseHistoryRef = ref()
 const familyDiseaseHistoryRef = ref()
+
+// 加载档案数据
+const loadArchiveData = (data) => {
+  console.log('CompleteHealthArchive - loadArchiveData:', data)
+  if (data) {
+    // 处理从API返回的数据格式
+    const personalInfo = {
+      id: data.id,
+      account: data.account,
+      username: data.username,
+      gender: data.gender,
+      address: data.address,
+      birthdate: data.birthdate,
+      phone: data.phone,
+      doctorId: data.doctorId,
+      type: data.type
+    }
+
+    const basicHealthInfo = data.healthInfo || {}
+    const diseaseHistory = data.diseaseHistoryList || []
+    const familyDiseaseHistory = data.familyHistoryList || []
+
+    console.log('CompleteHealthArchive - processed data:', {
+      personalInfo,
+      basicHealthInfo,
+      diseaseHistory,
+      familyDiseaseHistory
+    })
+
+    // 确保组件已经挂载后再设置数据
+    setTimeout(() => {
+      personalInfoRef.value?.setFormData(personalInfo)
+      basicHealthInfoRef.value?.setFormData(basicHealthInfo)
+      diseaseHistoryRef.value?.setFormData(diseaseHistory)
+      familyDiseaseHistoryRef.value?.setFormData(familyDiseaseHistory)
+    }, 100)
+  }
+}
+
+// 监听patientData变化，加载档案数据
+watch(() => props.patientData, (newData) => {
+  console.log('CompleteHealthArchive - patientData changed:', newData)
+  if (newData) {
+    loadArchiveData(newData)
+  }
+}, { immediate: true })
 
 // 开始编辑
 const startEdit = () => {
@@ -134,34 +184,25 @@ const saveArchive = async () => {
     }
 
     // 设置用户ID
-    if (props.userId) {
-      archiveData.personalInfo.userId = props.userId
-      archiveData.basicHealthInfo.userId = props.userId
-      archiveData.diseaseHistory.forEach(item => item.userId = props.userId)
-      archiveData.familyDiseaseHistory.forEach(item => item.userId = props.userId)
+    const userId = props.userId || props.patientData?.id
+    if (userId) {
+      archiveData.personalInfo.userId = userId
+      archiveData.basicHealthInfo.userId = userId
+      archiveData.diseaseHistory.forEach(item => item.userId = userId)
+      archiveData.familyDiseaseHistory.forEach(item => item.userId = userId)
     }
 
     // 触发保存事件
     emit('save', archiveData)
 
     // 只有在查看现有档案时才退出编辑模式
-    if (props.userId) {
+    if (props.userId || props.patientData) {
       editMode.value = false
     }
     ElMessage.success('保存成功')
   } catch (error) {
     console.error('保存失败:', error)
     ElMessage.error(error.message || '保存失败，请检查表单信息')
-  }
-}
-
-// 加载档案数据
-const loadArchiveData = (data) => {
-  if (data) {
-    personalInfoRef.value?.setFormData(data.personalInfo || {})
-    basicHealthInfoRef.value?.setFormData(data.basicHealthInfo || {})
-    diseaseHistoryRef.value?.setFormData(data.diseaseHistory || [])
-    familyDiseaseHistoryRef.value?.setFormData(data.familyDiseaseHistory || [])
   }
 }
 

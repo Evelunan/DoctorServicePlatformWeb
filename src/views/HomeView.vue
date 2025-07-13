@@ -38,6 +38,7 @@ function handleMenuSelect(index) {
 
 // 处理病人选择
 function handlePatientSelect(patient) {
+  console.log('HomeView - handlePatientSelect called with:', patient)
   selectedPatient.value = patient
   showHealthArchive.value = true
 }
@@ -238,7 +239,7 @@ const currentComponent = computed(() => {
               <h2 v-if="selectedPatient">查看 {{ selectedPatient.name }} 的健康档案</h2>
             </div>
             <HealthArchive
-              :userId="selectedPatient?.id"
+              :patientData="selectedPatient"
               @save="handleArchiveSave"
             />
           </div>
