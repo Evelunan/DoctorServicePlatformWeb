@@ -42,9 +42,9 @@ export const createFollowUpRecordAPI = (data) => {
 }
 
 // 获取随访记录
-export const getFollowUpRecordsAPI = (patientId) => {
+export const getFollowUpRecordsAPI = () => {
   return httpInstance({
-    url: `/followup/records/${patientId}`
+    url: `/followupHistory/list`
   })
 }
 

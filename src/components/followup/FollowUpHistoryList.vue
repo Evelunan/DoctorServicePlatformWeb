@@ -1,38 +1,70 @@
 <template>
-  <el-table :data="plans" style="width: 100%">
-    <el-table-column prop="followUpTime" label="随访时间" width="180">
-      <template #default="scope">
-        {{ new Date(scope.row.followUpTime).toLocaleString() }}
-      </template>
-    </el-table-column>
-    <el-table-column prop="followUpMethod" label="随访方式" width="180" />
-    <el-table-column prop="followUpContent" label="随访内容" />
-    <el-table-column label="操作">
-      <template #default="scope">
-        <el-button size="small" @click="sendReminder(scope.row.id)">发送提醒</el-button>
-        <el-button size="small" type="primary" @click="$emit('select-plan', scope.row.id)">填写记录</el-button>
-      </template>
-    </el-table-column>
-  </el-table>
+  <div>
+    <el-table :data="records" style="width: 100%">
+      <el-table-column prop="id" label="ID" width="180"></el-table-column>
+      <el-table-column prop="doctorName" label="医生姓名" width="180"></el-table-column>
+      <el-table-column prop="elderName" label="老人姓名" width="180"></el-table-column>
+      <el-table-column prop="followupTime" label="随访时间"></el-table-column>
+      <el-table-column prop="healthStatus" label="健康状况"></el-table-column>
+      <el-table-column label="操作">
+        <template #default="{ row }">
+          <el-button size="small" @click="viewDetails(row)">查看详情</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getFollowUpPlansAPI, sendFollowUpReminderAPI } from '@/api/followup'
+import { getFollowUpRecordsAPI, getonePlansAPI } from '@/api/followup'
+import { getUser } from '@/api/user'
 
-const props = defineProps({ patientId: String })
+const records = ref([])
+const emit = defineEmits(['view-details'])
 
-const plans = ref([])
+onMounted(async () => {
+  try {
+    const res = await getFollowUpRecordsAPI()
+    const historyList = res.data.data || []
 
-const fetchPlans = async () => {
-  const response = await getFollowUpPlansAPI(props.patientId)
-  plans.value = response.data
+    const enrichedRecords = await Promise.all(historyList.map(async (record) => {
+      let elderName = 'N/A';
+      let doctorName = 'N/A';
+      let method = 'N/A';
+      let notes = 'N/A';
+
+      if (record.planId) {
+        try {
+          const planRes = await getonePlansAPI(record.planId)
+          const plan = planRes.data.data
+          if (plan) {
+            elderName = plan.elderName;
+            method = plan.method;
+            notes = plan.notes;
+            if (plan.doctorId) {
+              try {
+                const userRes = await getUser(plan.doctorId)
+                doctorName = userRes.data.data.username
+              } catch (e) {
+                console.error(`获取医生信息失败 for doctorId: ${plan.doctorId}`, e)
+              }
+            }
+          }
+        } catch (e) {
+          console.error(`获取计划信息失败 for planId: ${record.planId}`, e)
+        }
+      }
+      return { ...record, elderName, doctorName, method, notes };
+    }));
+
+    records.value = enrichedRecords;
+  } catch (error) {
+    console.error("获取随访历史记录失败", error)
+  }
+})
+
+function viewDetails(record) {
+  emit('view-details', record)
 }
-
-const sendReminder = async (planId) => {
-  await sendFollowUpReminderAPI(planId)
-  alert('提醒已发送')
-}
-
-onMounted(fetchPlans)
 </script>

@@ -46,7 +46,7 @@
             <el-radio-group v-model="editablePlan.status">
               <el-radio :label="1">进行中</el-radio>
               <el-radio :label="2">已完成</el-radio>
-              <el-radio :label="0">已取消</el-radio>
+              <el-radio :label="0">未执行</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item>

@@ -12,7 +12,8 @@
       <FollowUpRecord :plan-id="selectedPlanId" @record-created="handleRecordCreated" />
     </div>
     <div v-if="activeTab === 'history'">
-      <FollowUpList ref="followUpListRef" @select-plan="handleSelectPlan" />
+      <FollowUpHistoryList v-if="currentHistoryView === 'list'" @view-details="showHistoryDetail" />
+      <FollowUpHistoryDetail v-if="currentHistoryView === 'detail'" :record="selectedHistoryRecord" @back="showHistoryList" />
     </div>
     
     <div v-if="activeTab === 'plan-list'">
@@ -26,9 +27,10 @@
 import { ref, watch, computed } from 'vue'
 import FollowUpPlan from '@/components/followup/FollowUpPlanCreate.vue'
 import FollowUpRecord from '@/components/followup/FollowUpRecord.vue'
-import FollowUpList from '@/components/followup/FollowUpHistoryList.vue'
 import FollowUpPlanList from '@/components/followup/FollowUpPlanList.vue'
 import FollowUpPlanDetail from '@/components/followup/FollowUpPlanDetail.vue'
+import FollowUpHistoryList from '@/components/followup/FollowUpHistoryList.vue'
+import FollowUpHistoryDetail from '@/components/followup/FollowUpHistoryDetail.vue'
 
 const props = defineProps({
   activeSubMenu: {
@@ -42,12 +44,14 @@ const selectedPlanId = ref(null)
 const followUpListRef = ref(null)
 const currentView = ref('list')
 const selectedPlan = ref(null)
+const currentHistoryView = ref('list')
+const selectedHistoryRecord = ref(null)
 
 const title = computed(() => {
   const titleMap = {
     plan: '随访计划制定',
     record: '随访记录填写',
-    history: '随访历史管理',
+    history: '随访历史查看',
     'plan-list': '随访计划列表'
   }
   return titleMap[activeTab.value] || '重点人群随访管理'
@@ -82,13 +86,7 @@ function handleRecordCreated() {
   }
 }
 
-function handleSelectPlan(planId) {
-  selectedPlanId.value = planId
-  activeTab.value = 'record'
-  if (followUpListRef.value) {
-    followUpListRef.value.fetchFollowUpPlans()
-  }
-}
+
 
 function showPlanDetail(plan) {
   selectedPlan.value = plan
@@ -103,6 +101,16 @@ function showPlanList() {
 function handlePlanUpdated(updatedPlan) {
   selectedPlan.value = updatedPlan;
   // The detail view will automatically update due to the reactive nature of selectedPlan
+}
+
+function showHistoryDetail(record) {
+  selectedHistoryRecord.value = record
+  currentHistoryView.value = 'detail'
+}
+
+function showHistoryList() {
+  currentHistoryView.value = 'list'
+  selectedHistoryRecord.value = null
 }
 </script>
 

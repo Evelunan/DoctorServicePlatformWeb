@@ -194,7 +194,7 @@ const currentComponent = computed(() => {
               </el-menu-item>
               <el-menu-item index="4-4">
                 <el-icon><Document /></el-icon>
-                随访历史管理
+                随访历史查看
               </el-menu-item>
               
             </el-sub-menu>

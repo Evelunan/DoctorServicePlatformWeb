@@ -29,5 +29,10 @@ export const getAllDoctor = () => {
   return httpInstance.get('/user/getAllDoctor')
 }
 
+// 获取某个用户（根据token获取）
+export const getUser = (id) => {
+  return httpInstance.get(`/user/getUser/${id}`)
+}
+
 
 
