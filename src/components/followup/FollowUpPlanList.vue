@@ -5,37 +5,32 @@
       <el-table-column prop="elderName" label="老人姓名" width="180"></el-table-column>
       <el-table-column prop="priority" label="优先级">
         <template #default="{ row }">
-          {{ priorityMap[row.priority] }}
+          <el-tag :type="priorityTagType[row.priority]">{{ priorityMap[row.priority] }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="planTime" label="随访计划时间"></el-table-column>
-      <el-table-column label="操作">
+      <el-table-column prop="status" label="状态">
+        <template #default="{ row }">
+          <el-tag :type="statusTagType[row.status]">{{ statusMap[row.status] }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="280">
         <template #default="{ row }">
           <el-button size="small" @click="viewDetails(row)">查看详情</el-button>
+          <el-button v-if="row.status === 0" size="small" type="primary" @click="executePlan(row)">执行</el-button>
+          <el-button v-if="row.status === 1" size="small" type="success" @click="completePlan(row)">完成</el-button>
+          <el-button size="small" type="danger" @click="deletePlan(row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
   </div>
 </template>
 
-<style>
-  .el-table .priority-0 {
-    background: #f56c6c !important;
-  }
-  .el-table .priority-1 {
-    background: #e6a23c !important;
-  }
-  .el-table .priority-2 {
-    background: #409eff !important;
-  }
-  .el-table .priority-3 {
-    background: #67c23a !important;
-  }
-</style>
+
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getFollowUpPlansAPI } from '@/api/followup'
+import { getFollowUpPlansAPI, updateFollowUpPlanAPI, deleteFollowUpPlanAPI } from '@/api/followup'
 
 const plans = ref([])
 const emit = defineEmits(['view-details'])
@@ -46,6 +41,27 @@ const priorityMap = {
   2: '正常',
   3: '较低'
 }
+
+const priorityTagType = {
+  3: 'success',
+  2: 'info',
+  1: 'warning',
+  0: 'danger'
+}
+
+const statusMap = {
+  0: '未执行',
+  1: '进行中',
+  2: '已完成'
+}
+
+const statusTagType = {
+  0: 'info',
+  1: 'primary',
+  2: 'success'
+}
+
+
 
 onMounted(() => {
   fetchPlans()
@@ -60,7 +76,39 @@ function viewDetails(plan) {
   emit('view-details', plan)
 }
 
-const tableRowClassName = ({ row }) => {
-  return `priority-${row.priority}`
+async function executePlan(plan) {
+  plan.status = 1 // Set status to '进行中'
+  await updateFollowUpPlanAPI(plan)
+  fetchPlans() // Refresh the list
+}
+
+async function completePlan(plan) {
+  plan.status = 2 // Set status to '已完成'
+  await updateFollowUpPlanAPI(plan)
+  fetchPlans() // Refresh the list
+}
+
+async function deletePlan(planId) {
+  await deleteFollowUpPlanAPI(planId)
+  fetchPlans() // Refresh the list
+}
+
+function tableRowClassName({ row }) {
+  if (row.priority === 2) {
+    return 'priority-high'
+  } else if (row.priority === 1) {
+    return 'priority-medium'
+  }
+  return ''
 }
 </script>
+
+<style scoped>
+.el-table .priority-high {
+  background: #fef0f0;
+}
+
+.el-table .priority-medium {
+  background: #fdf6ec;
+}
+</style>

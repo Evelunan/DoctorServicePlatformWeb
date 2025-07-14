@@ -10,16 +10,24 @@
           <el-descriptions-item label="随访方式">{{ plan.method }}</el-descriptions-item>
           <el-descriptions-item label="计划内容">{{ plan.notes }}</el-descriptions-item>
           <el-descriptions-item label="优先级">
-            <el-tag :type="priorityTagType(plan.priority)">{{ priorityMap[plan.priority] }}</el-tag>
+            <el-tag :type="priorityTagType[plan.priority]">{{ priorityMap[plan.priority] }}</el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="状态">
-            <el-tag :type="statusTagType(plan.status)">{{ statusMap[plan.status] }}</el-tag>
+            <el-tag :type="statusTagType[plan.status]">{{ statusMap[plan.status] }}</el-tag>
           </el-descriptions-item>
         </el-descriptions>
         <el-button type="primary" @click="editMode = true" style="margin-top: 20px;">编辑</el-button>
       </div>
       <div v-else>
         <el-form :model="editablePlan" label-width="120px">
+          <el-form-item label="随访计划时间">
+            <el-date-picker
+              v-model="editablePlan.planTime"
+              type="date"
+              placeholder="选择日期"
+              value-format="YYYY-MM-DD"
+            />
+          </el-form-item>
           <el-form-item label="随访方式">
             <el-input v-model="editablePlan.method"></el-input>
           </el-form-item>
@@ -71,21 +79,26 @@ const priorityMap = {
   3: '较低'
 }
 
-const priorityTagType = (priority) => {
-  const types = ['danger', 'warning', 'primary', 'success']
-  return types[priority] || 'info'
+const priorityTagType = {
+  3: 'success',
+  2: 'info',
+  1: 'warning',
+  0: 'danger'
 }
 
 const statusMap = {
-  1: '进行中',
-  2: '已完成',
   0: '未执行',
-  3: '已取消'
+  1: '进行中',
+  2: '已完成'
 }
-const statusTagType = (status) => {
-  const types = ['info', 'primary', 'success','danger']
-  return types[status] || 'info'
+
+const statusTagType = {
+  0: 'info',
+  1: 'primary',
+  2: 'success'
 }
+
+
 
 watch(() => props.plan, (newPlan) => {
   if (newPlan) {

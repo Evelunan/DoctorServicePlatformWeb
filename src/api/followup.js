@@ -56,3 +56,8 @@ export const updateFollowUpPlanAPI = (data) => {
     data
   })
 }
+
+// 删除随访计划
+export const deleteFollowUpPlanAPI = (id) => {
+  return httpInstance.delete(`/followupPlan/delete`, { params: { id } })
+}

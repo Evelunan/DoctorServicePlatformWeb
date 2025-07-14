@@ -14,6 +14,7 @@
     <div v-if="activeTab === 'history'">
       <FollowUpList ref="followUpListRef" @select-plan="handleSelectPlan" />
     </div>
+    
     <div v-if="activeTab === 'plan-list'">
       <FollowUpPlanList v-if="currentView === 'list'" @view-details="showPlanDetail" />
       <FollowUpPlanDetail v-if="currentView === 'detail'" :plan="selectedPlan" @back="showPlanList" @plan-updated="handlePlanUpdated" />
@@ -68,7 +69,7 @@ watch(() => props.activeSubMenu, (newVal) => {
 
 
 function handlePlanCreated() {
-  activeTab.value = 'history'
+  activeTab.value = 'plan-list'
   if (followUpListRef.value) {
     followUpListRef.value.fetchFollowUpPlans()
   }
@@ -84,6 +85,9 @@ function handleRecordCreated() {
 function handleSelectPlan(planId) {
   selectedPlanId.value = planId
   activeTab.value = 'record'
+  if (followUpListRef.value) {
+    followUpListRef.value.fetchFollowUpPlans()
+  }
 }
 
 function showPlanDetail(plan) {
