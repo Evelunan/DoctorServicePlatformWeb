@@ -4,23 +4,11 @@
       <template #header>
         <div class="card-header">
           <h2>健康档案</h2>
-          <div class="header-actions">
-            <el-button v-if="!editMode && (props.userId || props.patientData)" type="primary" @click="startEdit">
-              <el-icon><Edit /></el-icon>
-              编辑档案
-            </el-button>
-            <div v-else-if="props.userId || props.patientData" class="edit-actions">
-              <el-button type="primary" @click="saveArchive">
-                <el-icon><Check /></el-icon>
-                保存
-              </el-button>
-              <el-button @click="cancelEdit">
-                <el-icon><Close /></el-icon>
-                取消
-              </el-button>
-            </div>
-          </div>
         </div>
+      </template>
+
+      <template #footer>
+        <!-- footer内容全部移除，由父组件控制弹窗操作按钮 -->
       </template>
 
       <div class="archive-content">
@@ -71,12 +59,12 @@
 <script setup>
 import { ref, defineExpose, watch, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Edit, Check, Close } from '@element-plus/icons-vue'
 // import PersonalInfo from './PersonalInfo.vue'
 import PersonalInfo from '@/components/health-archive/PersonalInfo.vue'
 import BasicHealthInfo from '@/components/health-archive/BasicHealthInfo.vue'
 import DiseaseHistory from '@/components/health-archive/DiseaseHistory.vue'
 import FamilyDiseaseHistory from '@/components/health-archive/FamilyDiseaseHistory.vue'
+import { getAllDoctor } from '@/api/user'
 
 const props = defineProps({
   userId: {
@@ -86,12 +74,16 @@ const props = defineProps({
   patientData: {
     type: Object,
     default: null
+  },
+  mode: {
+    type: String,
+    default: 'view'
   }
 })
 
 const emit = defineEmits(['save', 'update'])
 
-const editMode = ref(false)
+const editMode = ref(props.mode === 'edit')
 
 // 组件引用
 const personalInfoRef = ref()
@@ -137,11 +129,16 @@ const loadArchiveData = (data) => {
   }
 }
 
-// 监听patientData变化，加载档案数据
-watch(() => props.patientData, (newData) => {
-  console.log('CompleteHealthArchive - patientData changed:', newData)
+// 监听mode和patientData变化，自动切换编辑/只读
+watch([
+  () => props.mode,
+  () => props.patientData
+], ([newMode, newData]) => {
+  editMode.value = newMode === 'edit'
   if (newData) {
     loadArchiveData(newData)
+  } else {
+    resetForm()
   }
 }, { immediate: true })
 
@@ -199,9 +196,7 @@ const saveArchive = async () => {
     if (props.userId || props.patientData) {
       editMode.value = false
     }
-    ElMessage.success('保存成功')
   } catch (error) {
-    console.error('保存失败:', error)
     ElMessage.error(error.message || '保存失败，请检查表单信息')
   }
 }
@@ -229,168 +224,18 @@ const resetForm = () => {
   familyDiseaseHistoryRef.value?.setFormData([])
 }
 
-// 获取病人档案数据（模拟数据）
-const getPatientArchiveData = (patientId) => {
-  const archiveDataMap = {
-    1: {
-      personalInfo: {
-        id: 1,
-        account: "zhangsan",
-        username: "张三",
-        gender: 0,
-        address: "北京市朝阳区",
-        birthdate: "1959-03-15",
-        phone: "13800000001",
-        doctorId: 1,
-        type: null
-      },
-      basicHealthInfo: {
-        id: 1,
-        height: 170.0,
-        weight: 75.0,
-        bloodType: 1, // B型
-        allergies: "对花粉过敏",
-        disability: 0,
-        userId: 1
-      },
-      diseaseHistory: [
-        {
-          id: 1,
-          diseaseName: "高血压",
-          diagnosisDate: "2015-06-20",
-          status: "治疗中",
-          notes: "中度高血压，需要长期服药控制",
-          userId: 1
-        }
-      ],
-      familyDiseaseHistory: [
-        {
-          id: 1,
-          relation: "父亲",
-          diseaseName: "高血压",
-          notes: "父亲有高血压病史",
-          userId: 1
-        }
-      ]
-    },
-    2: {
-      personalInfo: {
-        id: 2,
-        account: "lisi",
-        username: "李四",
-        gender: 1,
-        address: "北京市海淀区",
-        birthdate: "1952-08-10",
-        phone: "13800000002",
-        doctorId: 1,
-        type: null
-      },
-      basicHealthInfo: {
-        id: 2,
-        height: 158.0,
-        weight: 62.0,
-        bloodType: 3, // O型
-        allergies: "无",
-        disability: 0,
-        userId: 2
-      },
-      diseaseHistory: [
-        {
-          id: 2,
-          diseaseName: "糖尿病",
-          diagnosisDate: "2010-12-05",
-          status: "治疗中",
-          notes: "2型糖尿病，通过饮食和药物控制",
-          userId: 2
-        }
-      ],
-      familyDiseaseHistory: [
-        {
-          id: 2,
-          relation: "母亲",
-          diseaseName: "糖尿病",
-          notes: "母亲有糖尿病病史",
-          userId: 2
-        }
-      ]
-    },
-    3: {
-      personalInfo: {
-        id: 3,
-        account: "wangwu",
-        username: "王五",
-        gender: 0,
-        address: "北京市西城区",
-        birthdate: "1966-11-25",
-        phone: "13800000003",
-        doctorId: 1,
-        type: null
-      },
-      basicHealthInfo: {
-        id: 3,
-        height: 175.0,
-        weight: 80.0,
-        bloodType: 0, // A型
-        allergies: "对海鲜过敏",
-        disability: 0,
-        userId: 3
-      },
-      diseaseHistory: [
-        {
-          id: 3,
-          diseaseName: "心脏病",
-          diagnosisDate: "2018-03-10",
-          status: "治疗中",
-          notes: "冠心病，需要定期复查",
-          userId: 3
-        }
-      ],
-      familyDiseaseHistory: [
-        {
-          id: 3,
-          relation: "祖父",
-          diseaseName: "心脏病",
-          notes: "祖父因心脏病去世",
-          userId: 3
-        }
-      ]
-    }
-  }
-
-  return archiveDataMap[patientId] || null
-}
-
-// 监听userId变化，自动加载对应的病人档案
-watch(() => props.userId, (newUserId) => {
-  if (newUserId) {
-    const patientData = getPatientArchiveData(newUserId)
-    if (patientData) {
-      loadArchiveData(patientData)
-      editMode.value = false // 查看现有档案时，默认非编辑模式
-    }
-  } else {
-    resetForm()
-    editMode.value = true // 添加新病人时，默认进入编辑模式
-  }
-}, { immediate: true })
-
-// 监听编辑模式变化，在添加新病人时自动进入编辑模式
-watch(() => editMode.value, (newEditMode) => {
-  if (!props.userId && !newEditMode) {
-    // 如果是添加新病人且不在编辑模式，自动进入编辑模式
-    editMode.value = true
-  }
-})
+// 移除 userId 相关的 editMode 自动切换逻辑，统一由 mode 控制
 
 onMounted(() => {
-  // 设置医生列表
-  const doctorList = [
-    { id: 1, name: '张医生' },
-    { id: 2, name: '李医生' },
-    { id: 3, name: '王医生' },
-    { id: 4, name: '刘医生' }
-  ]
-  setDoctorList(doctorList)
+  // 获取医生列表
+  getAllDoctor().then(res => {
+    if (res && res.data && res.data.code === 0) {
+      // 只保留 id 和 username 字段
+      const doctorList = (res.data.data || []).map(d => ({ id: d.id, username: d.username }))
+      setDoctorList(doctorList)
+      console.log('医生列表:', doctorList)
+    }
+  })
 })
 
 defineExpose({

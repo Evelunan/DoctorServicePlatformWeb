@@ -26,10 +26,12 @@
       </el-table-column>
     </el-table>
 
-                <!-- 添加病人对话框 -->
+
+
+    <!-- 健康档案弹窗，支持查看/编辑/添加 -->
     <el-dialog
-      v-model="dialogVisible"
-      title="添加新病人 - 编辑模式"
+      v-model="patientArchiveDialogVisible"
+      :title="archiveMode === 'view' ? '健康档案 - 只读' : (archiveMode === 'edit' && (!currentPatientArchive || Object.keys(currentPatientArchive).length === 0) ? '添加新病人' : '健康档案 - 编辑')"
       width="90%"
       :close-on-click-modal="false"
       top="5vh"
@@ -37,14 +39,24 @@
       <div class="add-patient-container">
         <CompleteHealthArchive
           ref="archiveRef"
-          :userId="null"
+          :mode="archiveMode"
+          :patientData="currentPatientArchive"
           @save="handleArchiveSave"
         />
       </div>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="saveNewPatient">保存新病人</el-button>
+          <!-- 添加病人时 -->
+          <el-button v-if="archiveMode === 'edit' && (!currentPatientArchive || Object.keys(currentPatientArchive).length === 0)" type="primary" @click="saveNewPatient">保存病人</el-button>
+          <el-button v-if="archiveMode === 'edit' && (!currentPatientArchive || Object.keys(currentPatientArchive).length === 0)" @click="patientArchiveDialogVisible = false">关闭</el-button>
+
+          <!-- 查看档案时 -->
+          <el-button v-if="archiveMode === 'view' && currentPatientArchive && Object.keys(currentPatientArchive).length > 0" type="primary" @click="archiveMode = 'edit'">编辑档案</el-button>
+          <el-button v-if="archiveMode === 'view' && currentPatientArchive && Object.keys(currentPatientArchive).length > 0" @click="patientArchiveDialogVisible = false">关闭</el-button>
+
+          <!-- 编辑档案时（已有病人） -->
+          <el-button v-if="archiveMode === 'edit' && currentPatientArchive && Object.keys(currentPatientArchive).length > 0" type="primary" @click="saveNewPatient">保存</el-button>
+          <el-button v-if="archiveMode === 'edit' && currentPatientArchive && Object.keys(currentPatientArchive).length > 0" @click="cancelEdit">取消</el-button>
         </div>
       </template>
     </el-dialog>
@@ -55,17 +67,20 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getPatientList, removePatient as removePatientApi, getPatientArchive } from '@/api/patient'
+import { savePatientArchive, updatePatientArchive } from '@/api/patient'
 import CompleteHealthArchive from '@/components/health-archive/CompleteHealthArchive.vue'
 import { useUserStore } from '@/stores/user'
 
-const emit = defineEmits(['select-patient'])
 const userStore = useUserStore()
 
 const patientList = ref([])
-const dialogVisible = ref(false)
+// const dialogVisible = ref(false)
 const archiveRef = ref()
 
-
+// 新增：档案弹窗相关变量
+const patientArchiveDialogVisible = ref(false)
+const currentPatientArchive = ref(null)
+const archiveMode = ref('view') // 'view' | 'edit'
 
 
 onMounted(() => {
@@ -79,36 +94,7 @@ const loadPatientList = async () => {
     if (res && res.data && res.data.code === 0) {
       patientList.value = res.data.data || []
     } else {
-      // 如果接口失败，使用模拟数据
-      patientList.value = [
-        {
-          id: 1,
-          name: '张三',
-          gender: 0,
-          birthdate: '1959-03-15',
-          phone: '13800000001',
-          address: '北京市朝阳区',
-          lastVisit: '2024-01-15'
-        },
-        {
-          id: 2,
-          name: '李四',
-          gender: 1,
-          birthdate: '1952-07-22',
-          phone: '13800000002',
-          address: '北京市海淀区',
-          lastVisit: '2024-01-10'
-        },
-        {
-          id: 3,
-          name: '王五',
-          gender: 0,
-          birthdate: '1966-11-08',
-          phone: '13800000003',
-          address: '北京市西城区',
-          lastVisit: '2024-01-08'
-        }
-      ]
+      ElMessage.error(res.data?.message || '加载病人列表失败')
     }
   } catch (error) {
     console.error('加载病人列表失败:', error)
@@ -116,14 +102,14 @@ const loadPatientList = async () => {
   }
 }
 
-// 查看档案
+// 修改：查看档案
 const viewArchive = async (patient) => {
   try {
-    // 调用API获取病人档案信息
     const res = await getPatientArchive(patient.id)
     if (res && res.data && res.data.code === 0) {
-      // 将档案信息传递给父组件
-      emit('select-patient', res.data.data)
+      currentPatientArchive.value = res.data.data
+      archiveMode.value = 'view'
+      patientArchiveDialogVisible.value = true
     } else {
       ElMessage.error('获取档案信息失败')
     }
@@ -133,10 +119,12 @@ const viewArchive = async (patient) => {
   }
 }
 
-// 添加病人
+// 修改：添加病人
 const addPatient = () => {
-  dialogVisible.value = true
-  // 确保在下一个tick后重置表单并进入编辑模式
+  currentPatientArchive.value = {} // 传递空对象，表单内容为空
+  archiveMode.value = 'edit'
+  patientArchiveDialogVisible.value = true
+  // 弹窗打开后清空表单
   setTimeout(() => {
     if (archiveRef.value) {
       archiveRef.value.resetForm()
@@ -144,32 +132,13 @@ const addPatient = () => {
   }, 100)
 }
 
-// 处理健康档案保存
-const handleArchiveSave = async (archiveData) => {
-  try {
-    console.log('保存新病人档案:', archiveData)
-
-    // 这里应该调用API保存新病人和档案数据
-    // const res = await addPatientWithArchive(archiveData)
-
-    // 模拟保存成功
-    ElMessage.success('新病人添加成功！')
-    dialogVisible.value = false
-
-    // 重新加载病人列表
-    await loadPatientList()
-  } catch (error) {
-    console.error('添加病人失败:', error)
-    ElMessage.error('添加失败，请稍后重试')
-  }
-}
-
 // 保存新病人
 const saveNewPatient = async () => {
   try {
-    // 触发健康档案组件的保存
+    // 只通过健康档案组件的saveArchive方法收集和校验所有数据
     if (archiveRef.value) {
       await archiveRef.value.saveArchive()
+      // 数据会通过@save自动回调handleArchiveSave
     }
   } catch (error) {
     console.error('保存新病人失败:', error)
@@ -177,21 +146,51 @@ const saveNewPatient = async () => {
   }
 }
 
+// 处理健康档案保存
+const handleArchiveSave = async (archiveData) => {
+  try {
+    // 组装后端需要的数据结构
+    const data = {
+      ...archiveData.personalInfo,
+      healthInfo: archiveData.basicHealthInfo,
+      diseaseHistoryList: archiveData.diseaseHistory,
+      familyHistoryList: archiveData.familyDiseaseHistory
+    }
+    let res
+    // 判断是添加还是编辑
+    if (!currentPatientArchive.value || Object.keys(currentPatientArchive.value).length === 0) {
+      // 添加新病人
+      res = await savePatientArchive(data)
+    } else {
+      // 编辑已有病人
+      res = await updatePatientArchive(data)
+    }
+    if (res && res.data && res.data.code === 0) {
+      ElMessage.success('保存成功！')
+      patientArchiveDialogVisible.value = false
+      await loadPatientList()
+    } else {
+      ElMessage.error(res.data?.message || '保存失败，请稍后重试')
+    }
+  } catch (error) {
+    console.error('保存病人失败:', error)
+    ElMessage.error('保存失败，请稍后重试')
+  }
+}
+
 // 移除病人
 const removePatient = async (patient) => {
   try {
-    await ElMessageBox.confirm(`确定要移除病人 ${patient.name} 吗？`, '提示', {
+    await ElMessageBox.confirm(`确定要移除病人 ${patient.username || patient.name} 吗？`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
     })
-
     const doctorId = userStore.userId || 1 // 从用户store获取医生ID
     const res = await removePatientApi(patient.id, doctorId)
     if (res && res.data && res.data.code === 0) {
-      // 重新加载病人列表
       await loadPatientList()
-      ElMessage.success('移除成功')
+      ElMessage.success('病人移除成功！')
     } else {
       ElMessage.error(res.data?.message || '移除失败')
     }
@@ -201,6 +200,11 @@ const removePatient = async (patient) => {
       ElMessage.error('移除失败，请稍后重试')
     }
   }
+}
+
+// 新增取消编辑逻辑
+const cancelEdit = () => {
+  archiveMode.value = 'view'
 }
 </script>
 

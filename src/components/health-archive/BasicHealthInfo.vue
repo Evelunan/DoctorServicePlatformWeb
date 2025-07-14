@@ -91,6 +91,16 @@ const form = ref({
   userId: null
 })
 
+const initialForm = {
+  id: null,
+  height: null,
+  weight: null,
+  bloodType: null,
+  allergies: '',
+  disability: 0,
+  userId: null
+}
+
 const rules = {
   height: [{ required: true, message: '请输入身高', trigger: 'blur' }],
   weight: [{ required: true, message: '请输入体重', trigger: 'blur' }],
@@ -128,7 +138,10 @@ const getBMIDescription = () => {
 
 // 设置表单数据
 const setFormData = (data) => {
-  Object.assign(form.value, data)
+  Object.assign(form.value, initialForm)
+  if (data && Object.keys(data).length > 0) {
+    Object.assign(form.value, data)
+  }
 }
 
 // 获取表单数据

@@ -107,10 +107,9 @@ const removeFamilyHistory = (index) => {
 
 // 设置表单数据
 const setFormData = (data) => {
-  if (Array.isArray(data)) {
+  familyHistoryList.value = []
+  if (Array.isArray(data) && data.length > 0) {
     familyHistoryList.value = data
-  } else {
-    familyHistoryList.value = []
   }
 }
 

@@ -198,8 +198,8 @@ onMounted(async () => {
         Object.assign(form.value, userStore.userInfo)
         // 保存原始数据
         Object.assign(originalForm.value, userStore.userInfo)
-      } else {
-        ElMessage.error('获取用户信息失败')
+    } else {
+      ElMessage.error('获取用户信息失败')
       }
     }
   } catch (error) {

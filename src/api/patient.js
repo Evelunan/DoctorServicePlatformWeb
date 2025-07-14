@@ -7,12 +7,12 @@ export const getPatientList = () => {
 
 // 添加病人
 export const addPatient = (data) => {
-  return httpInstance.post('/patient/add', data)
+  return httpInstance.post('/patient/archive/add', data)
 }
 
 // 移除病人
 export const removePatient = (patientId, doctorId) => {
-  return httpInstance.delete(`/patient/remove/${patientId}`, {
+  return httpInstance.delete(`/patient/archive/delete/${patientId}`, {
     params: { doctorId }
   })
 }
@@ -24,7 +24,7 @@ export const getPatientArchive = (patientId) => {
 
 // 保存病人健康档案
 export const savePatientArchive = (data) => {
-  return httpInstance.post('/patient/archive/save', data)
+  return httpInstance.post('/patient/archive/add', data)
 }
 
 // 更新病人健康档案

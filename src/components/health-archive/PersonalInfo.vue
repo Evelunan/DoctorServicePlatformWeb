@@ -50,7 +50,7 @@
             <el-option
               v-for="doctor in doctorList"
               :key="doctor.id"
-              :label="doctor.name"
+              :label="doctor.username"
               :value="doctor.id"
             />
           </el-select>
@@ -89,6 +89,19 @@ const form = ref({
   type: null
 })
 
+const initialForm = {
+  id: null,
+  account: '',
+  password: '',
+  username: '',
+  gender: 0,
+  address: '',
+  birthdate: '',
+  phone: '',
+  doctorId: null,
+  type: null
+}
+
 const doctorList = ref([
   { id: 1, name: '张医生' },
   { id: 2, name: '李医生' },
@@ -109,9 +122,12 @@ const rules = {
 
 // 设置表单数据
 const setFormData = (data) => {
-  console.log('PersonalInfo - setFormData called with:', data)
-  Object.assign(form.value, data)
-  console.log('PersonalInfo - form after assignment:', form.value)
+  // 先重置为初始值
+  Object.assign(form.value, initialForm)
+  // 再赋值（如果有数据）
+  if (data && Object.keys(data).length > 0) {
+    Object.assign(form.value, data)
+  }
 }
 
 // 获取表单数据

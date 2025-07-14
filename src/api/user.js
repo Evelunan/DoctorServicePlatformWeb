@@ -24,5 +24,10 @@ export const updateUser = (data) => {
   return httpInstance.put('/user/updateUser', data)
 }
 
+// 获取所有医生列表
+export const getAllDoctor = () => {
+  return httpInstance.get('/user/getAllDoctor')
+}
+
 
 

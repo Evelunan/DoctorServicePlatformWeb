@@ -116,10 +116,9 @@ const removeDisease = (index) => {
 
 // 设置表单数据
 const setFormData = (data) => {
-  if (Array.isArray(data)) {
+  diseaseList.value = []
+  if (Array.isArray(data) && data.length > 0) {
     diseaseList.value = data
-  } else {
-    diseaseList.value = []
   }
 }
 
