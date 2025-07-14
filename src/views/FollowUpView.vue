@@ -15,17 +15,19 @@
       <FollowUpList ref="followUpListRef" @select-plan="handleSelectPlan" />
     </div>
     <div v-if="activeTab === 'plan-list'">
-      <FollowUpPlanList />
+      <FollowUpPlanList v-if="currentView === 'list'" @view-details="showPlanDetail" />
+      <FollowUpPlanDetail v-if="currentView === 'detail'" :plan="selectedPlan" @back="showPlanList" @plan-updated="handlePlanUpdated" />
     </div>
   </el-card>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue'
-import FollowUpPlan from '@/components/followup/FollowUpPlan.vue'
+import FollowUpPlan from '@/components/followup/FollowUpPlanCreate.vue'
 import FollowUpRecord from '@/components/followup/FollowUpRecord.vue'
-import FollowUpList from '@/components/followup/FollowUpList.vue'
+import FollowUpList from '@/components/followup/FollowUpHistoryList.vue'
 import FollowUpPlanList from '@/components/followup/FollowUpPlanList.vue'
+import FollowUpPlanDetail from '@/components/followup/FollowUpPlanDetail.vue'
 
 const props = defineProps({
   activeSubMenu: {
@@ -37,6 +39,8 @@ const props = defineProps({
 const activeTab = ref('plan')
 const selectedPlanId = ref(null)
 const followUpListRef = ref(null)
+const currentView = ref('list')
+const selectedPlan = ref(null)
 
 const title = computed(() => {
   const titleMap = {
@@ -80,6 +84,21 @@ function handleRecordCreated() {
 function handleSelectPlan(planId) {
   selectedPlanId.value = planId
   activeTab.value = 'record'
+}
+
+function showPlanDetail(plan) {
+  selectedPlan.value = plan
+  currentView.value = 'detail'
+}
+
+function showPlanList() {
+  currentView.value = 'list'
+  selectedPlan.value = null
+}
+
+function handlePlanUpdated(updatedPlan) {
+  selectedPlan.value = updatedPlan;
+  // The detail view will automatically update due to the reactive nature of selectedPlan
 }
 </script>
 

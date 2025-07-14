@@ -1,10 +1,10 @@
 <template>
   <el-form :model="record" label-width="120px">
-    <el-form-item label="医生选择" required>
+    <!-- <el-form-item label="医生选择" required>
       <el-select v-model="record.doctorId" placeholder="请选择医生">
         <el-option v-for="item in doctors" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item label="老人选择" required>
       <el-select v-model="record.patientId" placeholder="请选择老人">
         <el-option v-for="item in patients" :key="item.id" :label="item.name" :value="item.id" />
