@@ -14,6 +14,16 @@ export const getFollowUpPlansAPI = () => {
   return httpInstance.get(`/followupPlan/list`)
 }
 
+// 获取单个随访计划列表
+export const getonePlansAPI = (id) => {
+  return httpInstance.get(`/followupPlan/get/${id}`)
+}
+
+// 获取已完成的随访计划列表
+export const getFollowUpCompletePlansAPI= () => {
+  return httpInstance.get(`/followupPlan/getCompleteList`)
+}
+
 // 发送随访提醒
 export const sendFollowUpReminderAPI = (planId) => {
   return httpInstance({
@@ -25,7 +35,7 @@ export const sendFollowUpReminderAPI = (planId) => {
 // 记录随访结果
 export const createFollowUpRecordAPI = (data) => {
   return httpInstance({
-    url: '/followup/record',
+    url: '/followupHistory/add',
     method: 'POST',
     data
   })
