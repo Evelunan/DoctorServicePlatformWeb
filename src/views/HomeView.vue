@@ -7,6 +7,7 @@ import HealthArchive from '@/components/health-archive/CompleteHealthArchive.vue
 import PatientList from '../components/PatientList.vue'
 import { useUserStore } from '@/stores/user'
 import FollowUpView from './FollowUpView.vue'
+import WarningRuleManager from '@/components/health-warning/WarningRuleManager.vue'
 import {
   User, ArrowDown, Setting, SwitchButton,
   UserFilled, Document, DataAnalysis,
@@ -34,6 +35,7 @@ function handleMenuSelect(index) {
     showHealthArchive.value = false
     selectedPatient.value = null
   }
+  // 跳转逻辑已移除，只切换内容区
 }
 
 // 处理病人选择
@@ -77,7 +79,7 @@ const currentComponent = computed(() => {
     return PatientList
   }
   const map = {
-    '3-1': { template: '<div>预警规则管理功能区</div>' },
+    '3-1': WarningRuleManager,
     '3-2': { template: '<div>预警处理功能区</div>' },
     '3-3': { template: '<div>预警历史查询功能区</div>' },
     '5-1': { template: '<div>干预措施制定功能区</div>' },
@@ -196,7 +198,7 @@ const currentComponent = computed(() => {
                 <el-icon><Document /></el-icon>
                 随访历史查看
               </el-menu-item>
-              
+
             </el-sub-menu>
             <el-sub-menu index="5">
               <template #title>

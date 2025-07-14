@@ -126,7 +126,7 @@ const setFormData = (data) => {
   Object.assign(form.value, initialForm)
   // 再赋值（如果有数据）
   if (data && Object.keys(data).length > 0) {
-    Object.assign(form.value, data)
+  Object.assign(form.value, data)
   }
 }
 
