@@ -31,25 +31,107 @@
 
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="血型" prop="bloodType">
-          <el-select v-model="form.bloodType" :disabled="!editMode" placeholder="请选择血型" style="width: 100%">
-            <el-option label="A型" :value="0" />
-            <el-option label="B型" :value="1" />
-            <el-option label="AB型" :value="2" />
-            <el-option label="O型" :value="3" />
-            <el-option label="其他" :value="4" />
-          </el-select>
+        <el-form-item label="收缩压（高压，mmHg）" prop="systolic">
+          <el-input-number
+            v-model="form.systolic"
+            :disabled="!editMode"
+            :min="50"
+            :max="250"
+            :precision="0"
+            placeholder="请输入收缩压"
+            style="width: 100%"
+          />
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="是否残疾" prop="disability">
-          <el-select v-model="form.disability" :disabled="!editMode" placeholder="请选择" style="width: 100%">
-            <el-option label="否" :value="0" />
-            <el-option label="是" :value="1" />
-          </el-select>
+        <el-form-item label="舒张压（低压，mmHg）" prop="diastolic">
+          <el-input-number
+            v-model="form.diastolic"
+            :disabled="!editMode"
+            :min="30"
+            :max="150"
+            :precision="0"
+            placeholder="请输入舒张压"
+            style="width: 100%"
+          />
         </el-form-item>
       </el-col>
     </el-row>
+
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-form-item label="空腹血糖（mmol/L）" prop="fastingGlucose">
+          <el-input-number
+            v-model="form.fastingGlucose"
+            :disabled="!editMode"
+            :min="1"
+            :max="30"
+            :precision="1"
+            placeholder="请输入空腹血糖"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item label="血氧饱和度（%）" prop="spo2">
+          <el-input-number
+            v-model="form.spo2"
+            :disabled="!editMode"
+            :min="50"
+            :max="100"
+            :precision="0"
+            placeholder="请输入血氧饱和度"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-col>
+    </el-row>
+
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-form-item label="心率（次/分）" prop="heartRate">
+          <el-input-number
+            v-model="form.heartRate"
+            :disabled="!editMode"
+            :min="30"
+            :max="200"
+            :precision="0"
+            placeholder="请输入心率"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item label="体温（℃）" prop="temperature">
+          <el-input-number
+            v-model="form.temperature"
+            :disabled="!editMode"
+            :min="30"
+            :max="45"
+            :precision="1"
+            placeholder="请输入体温"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-col>
+    </el-row>
+
+    <el-form-item label="血型" prop="bloodType">
+      <el-select v-model="form.bloodType" :disabled="!editMode" placeholder="请选择血型" style="width: 100%">
+        <el-option label="A型" :value="0" />
+        <el-option label="B型" :value="1" />
+        <el-option label="AB型" :value="2" />
+        <el-option label="O型" :value="3" />
+        <el-option label="其他" :value="4" />
+      </el-select>
+    </el-form-item>
+
+    <el-form-item label="是否残疾" prop="disability">
+      <el-select v-model="form.disability" :disabled="!editMode" placeholder="请选择" style="width: 100%">
+        <el-option label="否" :value="0" />
+        <el-option label="是" :value="1" />
+      </el-select>
+    </el-form-item>
 
     <el-form-item label="过敏信息" prop="allergies">
       <el-input
@@ -88,7 +170,13 @@ const form = ref({
   bloodType: null,
   allergies: '',
   disability: 0,
-  userId: null
+  userId: null,
+  systolic: null,
+  diastolic: null,
+  fastingGlucose: null,
+  spo2: null,
+  heartRate: null,
+  temperature: null
 })
 
 const initialForm = {
@@ -98,14 +186,26 @@ const initialForm = {
   bloodType: null,
   allergies: '',
   disability: 0,
-  userId: null
+  userId: null,
+  systolic: null,
+  diastolic: null,
+  fastingGlucose: null,
+  spo2: null,
+  heartRate: null,
+  temperature: null
 }
 
 const rules = {
   height: [{ required: true, message: '请输入身高', trigger: 'blur' }],
   weight: [{ required: true, message: '请输入体重', trigger: 'blur' }],
   bloodType: [{ required: true, message: '请选择血型', trigger: 'change' }],
-  disability: [{ required: true, message: '请选择是否残疾', trigger: 'change' }]
+  disability: [{ required: true, message: '请选择是否残疾', trigger: 'change' }],
+  systolic: [{ required: false, type: 'number', message: '请输入收缩压', trigger: 'blur' }],
+  diastolic: [{ required: false, type: 'number', message: '请输入舒张压', trigger: 'blur' }],
+  fastingGlucose: [{ required: false, type: 'number', message: '请输入空腹血糖', trigger: 'blur' }],
+  spo2: [{ required: false, type: 'number', message: '请输入血氧饱和度', trigger: 'blur' }],
+  heartRate: [{ required: false, type: 'number', message: '请输入心率', trigger: 'blur' }],
+  temperature: [{ required: false, type: 'number', message: '请输入体温', trigger: 'blur' }]
 }
 
 // 计算BMI
