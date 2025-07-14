@@ -1,11 +1,18 @@
 <template>
-  <div>
-    <el-table :data="records" style="width: 100%">
+  <div v-loading="isLoading">
+    <el-alert v-if="error" :title="error" type="error" show-icon :closable="false" />
+    <el-table v-if="!error" :data="historyRecords" style="width: 100%">
       <el-table-column prop="id" label="ID" width="180"></el-table-column>
       <el-table-column prop="doctorName" label="医生姓名" width="180"></el-table-column>
       <el-table-column prop="elderName" label="老人姓名" width="180"></el-table-column>
       <el-table-column prop="followupTime" label="随访时间"></el-table-column>
-      <el-table-column prop="healthStatus" label="健康状况"></el-table-column>
+      <el-table-column label="健康状况">
+        <template #default="{ row }">
+          <el-tag :type="healthStatusTagType(row.healthStatus)">
+            {{ healthStatusText(row.healthStatus) }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="操作">
         <template #default="{ row }">
           <el-button size="small" @click="viewDetails(row)">查看详情</el-button>
@@ -16,55 +23,43 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { getFollowUpRecordsAPI, getonePlansAPI } from '@/api/followup'
-import { getUser } from '@/api/user'
+import { onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useFollowUpStore } from '@/stores/followup'
 
-const records = ref([])
+const followUpStore = useFollowUpStore()
+const { historyRecords, isLoading, error } = storeToRefs(followUpStore)
+
 const emit = defineEmits(['view-details'])
 
-onMounted(async () => {
-  try {
-    const res = await getFollowUpRecordsAPI()
-    const historyList = res.data.data || []
-
-    const enrichedRecords = await Promise.all(historyList.map(async (record) => {
-      let elderName = 'N/A';
-      let doctorName = 'N/A';
-      let method = 'N/A';
-      let notes = 'N/A';
-
-      if (record.planId) {
-        try {
-          const planRes = await getonePlansAPI(record.planId)
-          const plan = planRes.data.data
-          if (plan) {
-            elderName = plan.elderName;
-            method = plan.method;
-            notes = plan.notes;
-            if (plan.doctorId) {
-              try {
-                const userRes = await getUser(plan.doctorId)
-                doctorName = userRes.data.data.username
-              } catch (e) {
-                console.error(`获取医生信息失败 for doctorId: ${plan.doctorId}`, e)
-              }
-            }
-          }
-        } catch (e) {
-          console.error(`获取计划信息失败 for planId: ${record.planId}`, e)
-        }
-      }
-      return { ...record, elderName, doctorName, method, notes };
-    }));
-
-    records.value = enrichedRecords;
-  } catch (error) {
-    console.error("获取随访历史记录失败", error)
-  }
+onMounted(() => {
+  followUpStore.fetchFollowUpHistory()
 })
+
+const healthStatusMap = {
+  0: '健康',
+  1: '病情好转',
+  2: '病况维持',
+  3: '病情恶化'
+};
+
+const healthStatusTagMap = {
+  0: 'success',
+  1: 'primary',
+  2: 'warning',
+  3: 'danger'
+};
+
+const healthStatusText = (status) => {
+  return healthStatusMap[status] || '未知';
+};
+
+const healthStatusTagType = (status) => {
+  return healthStatusTagMap[status] || 'info';
+};
 
 function viewDetails(record) {
   emit('view-details', record)
 }
+
 </script>

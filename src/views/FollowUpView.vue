@@ -13,7 +13,7 @@
     </div>
     <div v-if="activeTab === 'history'">
       <FollowUpHistoryList v-if="currentHistoryView === 'list'" @view-details="showHistoryDetail" />
-      <FollowUpHistoryDetail v-if="currentHistoryView === 'detail'" :record="selectedHistoryRecord" @back="showHistoryList" />
+      <FollowUpHistoryDetail v-if="currentHistoryView === 'detail'" :record-id="selectedHistoryRecord.id" @back="showHistoryList" />
     </div>
     
     <div v-if="activeTab === 'plan-list'">
