@@ -116,22 +116,22 @@
       </el-col>
     </el-row>
 
-    <el-form-item label="血型" prop="bloodType">
-      <el-select v-model="form.bloodType" :disabled="!editMode" placeholder="请选择血型" style="width: 100%">
-        <el-option label="A型" :value="0" />
-        <el-option label="B型" :value="1" />
-        <el-option label="AB型" :value="2" />
-        <el-option label="O型" :value="3" />
-        <el-option label="其他" :value="4" />
-      </el-select>
-    </el-form-item>
+        <el-form-item label="血型" prop="bloodType">
+          <el-select v-model="form.bloodType" :disabled="!editMode" placeholder="请选择血型" style="width: 100%">
+            <el-option label="A型" :value="0" />
+            <el-option label="B型" :value="1" />
+            <el-option label="AB型" :value="2" />
+            <el-option label="O型" :value="3" />
+            <el-option label="其他" :value="4" />
+          </el-select>
+        </el-form-item>
 
-    <el-form-item label="是否残疾" prop="disability">
-      <el-select v-model="form.disability" :disabled="!editMode" placeholder="请选择" style="width: 100%">
-        <el-option label="否" :value="0" />
-        <el-option label="是" :value="1" />
-      </el-select>
-    </el-form-item>
+        <el-form-item label="是否残疾" prop="disability">
+          <el-select v-model="form.disability" :disabled="!editMode" placeholder="请选择" style="width: 100%">
+            <el-option label="否" :value="0" />
+            <el-option label="是" :value="1" />
+          </el-select>
+        </el-form-item>
 
     <el-form-item label="过敏信息" prop="allergies">
       <el-input
@@ -240,7 +240,7 @@ const getBMIDescription = () => {
 const setFormData = (data) => {
   Object.assign(form.value, initialForm)
   if (data && Object.keys(data).length > 0) {
-    Object.assign(form.value, data)
+  Object.assign(form.value, data)
   }
 }
 
