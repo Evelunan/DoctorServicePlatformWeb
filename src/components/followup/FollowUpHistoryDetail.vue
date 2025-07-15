@@ -27,11 +27,15 @@
 import { ref, computed } from 'vue'
 import { useFollowUpStore } from '@/stores/followup'
 
+const emit = defineEmits(['back'])
+
+function goBack() {
+  emit('back')
+}
+
 const props = defineProps({
   recordId: [Number, String]
 })
-
-const emit = defineEmits(['back'])
 
 const followUpStore = useFollowUpStore()
 
@@ -61,10 +65,6 @@ const healthStatusText = (status) => {
 const healthStatusTagType = (status) => {
   return healthStatusTagMap[status] || 'info';
 };
-
-function goBack() {
-  emit('back')
-}
 </script>
 
 <style scoped>

@@ -12,12 +12,12 @@
       <FollowUpRecord :plan-id="selectedPlanId" @record-created="handleRecordCreated" @switch-tab="handleSwitchTab" />
     </div>
     <div v-if="activeTab === 'history'">
-      <FollowUpHistoryList v-if="currentHistoryView === 'list'" @view-details="showHistoryDetail" />
+      <FollowUpHistoryList v-if="currentHistoryView === 'list'" :from="previousTab" @view-details="showHistoryDetail" @back="goBack" />
       <FollowUpHistoryDetail v-if="currentHistoryView === 'detail'" :record-id="selectedHistoryRecord.id" @back="showHistoryList" />
     </div>
     
     <div v-if="activeTab === 'plan-list'">
-      <FollowUpPlanList v-if="currentView === 'list'" @view-details="showPlanDetail" />
+      <FollowUpPlanList v-if="currentView === 'list'" :from="previousTab" @view-details="showPlanDetail" @back="goBack" />
       <FollowUpPlanDetail v-if="currentView === 'detail'" :plan="selectedPlan" @back="showPlanList" @plan-updated="handlePlanUpdated" />
     </div>
   </el-card>
@@ -40,6 +40,7 @@ const props = defineProps({
 })
 
 const activeTab = ref('plan')
+const previousTab = ref('')
 const selectedPlanId = ref(null)
 const followUpListRef = ref(null)
 const currentView = ref('list')
@@ -73,6 +74,7 @@ watch(() => props.activeSubMenu, (newVal) => {
 
 
 function handlePlanCreated() {
+  previousTab.value = 'plan'
   activeTab.value = 'plan-list'
   if (followUpListRef.value) {
     followUpListRef.value.fetchFollowUpPlans()
@@ -80,11 +82,27 @@ function handlePlanCreated() {
 }
 
 function handleRecordCreated() {
-  // This function can be kept for now, but the main logic is in handleSwitchTab
+  previousTab.value = 'record'
+  activeTab.value = 'history'
 }
 
 function handleSwitchTab(tab) {
+  previousTab.value = activeTab.value
   activeTab.value = tab
+}
+
+function goBack() {
+  if (previousTab.value) {
+    activeTab.value = previousTab.value
+    previousTab.value = '' // Reset after going back
+  } else {
+    // Default back action if no previous tab is set
+    // For example, go to the main list view
+    if (activeTab.value === 'plan-list' || activeTab.value === 'history') {
+      currentView.value = 'list'
+      currentHistoryView.value = 'list'
+    }
+  }
 }
 
 

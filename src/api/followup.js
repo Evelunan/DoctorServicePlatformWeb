@@ -59,5 +59,5 @@ export const updateFollowUpPlanAPI = (data) => {
 
 // 删除随访计划
 export const deleteFollowUpPlanAPI = (id) => {
-  return httpInstance.delete(`/followupPlan/delete`, { params: { id } })
+  return httpInstance.delete(`/followupPlan/delete/${id}`)
 }
