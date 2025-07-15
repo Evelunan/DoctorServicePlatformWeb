@@ -35,18 +35,11 @@
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="亲属关系" prop="relation">
-                <el-select v-model="history.relation" :disabled="!editMode" placeholder="请选择亲属关系" style="width: 100%">
-                  <el-option label="父亲" value="父亲" />
-                  <el-option label="母亲" value="母亲" />
-                  <el-option label="祖父" value="祖父" />
-                  <el-option label="祖母" value="祖母" />
-                  <el-option label="外祖父" value="外祖父" />
-                  <el-option label="外祖母" value="外祖母" />
-                  <el-option label="兄弟" value="兄弟" />
-                  <el-option label="姐妹" value="姐妹" />
-                  <el-option label="子女" value="子女" />
-                  <el-option label="其他" value="其他" />
-                </el-select>
+                <el-input
+                  v-model="history.relation"
+                  :disabled="!editMode"
+                  placeholder="请输入亲属关系"
+                />
               </el-form-item>
             </el-col>
             <el-col :span="12">
