@@ -17,6 +17,7 @@
         <el-descriptions-item label="用药情况">{{ detailedRecord.medication }}</el-descriptions-item>
         <el-descriptions-item label="随访方式">{{ detailedRecord.method }}</el-descriptions-item>
         <el-descriptions-item label="备注">{{ detailedRecord.notes }}</el-descriptions-item>
+        <el-descriptions-item label="随访备注">{{ detailedRecord.remark }}</el-descriptions-item>
       </el-descriptions>
     </el-card>
   </div>

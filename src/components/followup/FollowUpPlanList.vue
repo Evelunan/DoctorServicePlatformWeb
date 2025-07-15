@@ -30,6 +30,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { ElMessageBox } from 'element-plus'
 import { getFollowUpPlansAPI, updateFollowUpPlanAPI, deleteFollowUpPlanAPI } from '@/api/followup'
 
 const plans = ref([])
@@ -52,13 +53,15 @@ const priorityTagType = {
 const statusMap = {
   0: '未执行',
   1: '进行中',
-  2: '已完成'
+  2: '已完成',
+  3: '已记录'
 }
 
 const statusTagType = {
   0: 'info',
   1: 'primary',
-  2: 'success'
+  2: 'success',
+  3: 'warning'
 }
 
 
@@ -69,7 +72,7 @@ onMounted(() => {
 
 async function fetchPlans() {
   const response = await getFollowUpPlansAPI()
-  plans.value = response.data.data
+  plans.value = response.data.data.filter(plan => plan.status < 2)
 }
 
 function viewDetails(plan) {
@@ -83,9 +86,17 @@ async function executePlan(plan) {
 }
 
 async function completePlan(plan) {
-  plan.status = 2 // Set status to '已完成'
-  await updateFollowUpPlanAPI(plan)
-  fetchPlans() // Refresh the list
+  await ElMessageBox.confirm('您确定要完成此计划吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    plan.status = 2 // Set status to '已完成'
+    await updateFollowUpPlanAPI(plan)
+    fetchPlans() // Refresh the list
+  }).catch(() => {
+    // 取消操作
+  });
 }
 
 async function deletePlan(planId) {

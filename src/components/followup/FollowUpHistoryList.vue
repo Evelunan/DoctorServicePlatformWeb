@@ -33,7 +33,10 @@ const { historyRecords, isLoading, error } = storeToRefs(followUpStore)
 const emit = defineEmits(['view-details'])
 
 onMounted(() => {
-  followUpStore.fetchFollowUpHistory()
+  // Only fetch history if it hasn't been loaded yet
+  if (!followUpStore.recordsLoaded) {
+    followUpStore.fetchFollowUpHistory()
+  }
 })
 
 const healthStatusMap = {

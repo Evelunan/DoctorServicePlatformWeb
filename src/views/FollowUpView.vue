@@ -9,7 +9,7 @@
       <FollowUpPlan @plan-created="handlePlanCreated" />
     </div>
     <div v-if="activeTab === 'record'">
-      <FollowUpRecord :plan-id="selectedPlanId" @record-created="handleRecordCreated" />
+      <FollowUpRecord :plan-id="selectedPlanId" @record-created="handleRecordCreated" @switch-tab="handleSwitchTab" />
     </div>
     <div v-if="activeTab === 'history'">
       <FollowUpHistoryList v-if="currentHistoryView === 'list'" @view-details="showHistoryDetail" />
@@ -80,10 +80,11 @@ function handlePlanCreated() {
 }
 
 function handleRecordCreated() {
-  activeTab.value = 'history'
-  if (followUpListRef.value) {
-    followUpListRef.value.fetchFollowUpPlans()
-  }
+  // This function can be kept for now, but the main logic is in handleSwitchTab
+}
+
+function handleSwitchTab(tab) {
+  activeTab.value = tab
 }
 
 

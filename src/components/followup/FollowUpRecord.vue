@@ -1,5 +1,5 @@
 <template>
-  <el-form :model="record" label-width="120px">
+  <el-form :model="record" :rules="rules" ref="form" label-width="120px">
     <el-form-item label="选择随访计划" required>
       <el-select v-model="record.planId" placeholder="请选择随访计划">
         <el-option v-for="item in completedPlans" :key="item.id" :label="`${item.id} - ${item.elderName}`" :value="item.id" />
@@ -19,7 +19,7 @@
     <el-form-item label="用药情况" required>
       <el-input type="textarea" v-model="record.medication" />
     </el-form-item>
-    <el-form-item label="随访时间" required>
+    <el-form-item label="随访时间" prop="followupTime">
       <el-date-picker
         v-model="record.followupTime"
         type="date"
@@ -27,26 +27,40 @@
         value-format="YYYY-MM-DD">
       </el-date-picker>
     </el-form-item>
+    <el-form-item label="备注">
+      <el-input type="textarea" v-model="record.remark" />
+    </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="submitRecord">提交记录</el-button>
+      <el-button type="primary" @click="submitRecord" :loading="isSubmitting" :disabled="isSubmitting">提交记录</el-button>
     </el-form-item>
   </el-form>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { createFollowUpRecordAPI, getFollowUpCompletePlansAPI } from '@/api/followup'
+import { ElMessage } from 'element-plus'
+import { getFollowUpCompletePlansAPI } from '@/api/followup'
+import { useFollowUpStore } from '@/stores/followup'
 
-const emit = defineEmits(['record-created'])
+const emit = defineEmits(['record-created', 'switch-tab'])
+const followUpStore = useFollowUpStore()
 
+const form = ref(null)
+const isSubmitting = ref(false)
 const completedPlans = ref([])
 const record = ref({
   planId: null,
   lifeStyle: '',
   healthStatus: 0,
   medication: '',
-  followupTime: ''
+  followupTime: '',
+  remark: ''
 })
+
+const rules = {
+  planId: [{ required: true, message: '请选择随访计划', trigger: 'change' }],
+  followupTime: [{ required: true, message: '请选择随访时间', trigger: 'change' }]
+}
 
 onMounted(async () => {
   try {
@@ -62,19 +76,33 @@ const handleFileUpload = (event) => {
 }
 
 const submitRecord = async () => {
-  try {
-    await createFollowUpRecordAPI(record.value)
-    emit('record-created')
-    // Reset form
-    record.value = {
-      planId: null,
-      lifeStyle: '',
-      healthStatus: 0,
-      medication: '',
-      followupTime: ''
+  if (!form.value || isSubmitting.value) return
+  await form.value.validate(async (valid) => {
+    if (valid) {
+      isSubmitting.value = true
+      try {
+        await followUpStore.createFollowUpRecord(record.value)
+        ElMessage.success('记录创建成功')
+        emit('switch-tab', 'history') // Switch to history tab
+        // Reset form
+        record.value = {
+          planId: null,
+          lifeStyle: '',
+          healthStatus: 0,
+          medication: '',
+          followupTime: '',
+          remark: ''
+        }
+        form.value.resetFields()
+      } catch (error) {
+        ElMessage.error('创建记录失败，请重试')
+      } finally {
+        isSubmitting.value = false
+      }
+    } else {
+      ElMessage.error('请填写所有必填项')
+      return false
     }
-  } catch (error) {
-    console.error('创建随访记录失败', error)
-  }
+  })
 }
 </script>
