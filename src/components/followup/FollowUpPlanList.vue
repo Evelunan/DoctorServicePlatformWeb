@@ -1,56 +1,104 @@
 <template>
-  <div>
-    <el-page-header v-if="from === 'plan'" @back="goBack" content="随访计划列表"></el-page-header>
-    <el-form :inline="true" :model="filters" class="demo-form-inline">
-      <el-form-item label="老人姓名">
-        <el-select v-model="filters.elderName" placeholder="请选择或输入老人姓名" clearable filterable allow-create default-first-option>
-          <el-option v-for="elder in elderList" :key="elder" :label="elder" :value="elder"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="状态">
-        <el-select v-model="filters.status" placeholder="请选择状态">
-          <el-option label="全部" value=""></el-option>
-          <el-option label="未执行" :value="0"></el-option>
-          <el-option label="进行中" :value="1"></el-option>
-        </el-select>
-      </el-form-item>
-    </el-form>
-    <el-table :data="paginatedPlans" style="width: 100%" :row-class-name="tableRowClassName" @sort-change="handleSortChange">
-      <el-table-column prop="id" label="ID" width="180"></el-table-column>
-      <el-table-column prop="elderName" label="老人姓名" width="180"></el-table-column>
-      <el-table-column prop="priority" label="优先级" sortable="custom">
-        <template #default="{ row }">
-          <el-tag :type="priorityTagType[row.priority]">{{ priorityMap[row.priority] }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="planTime" label="随访计划时间" sortable="custom"></el-table-column>
-      <el-table-column prop="method" label="随访方式" width="120"></el-table-column>
-      <el-table-column prop="status" label="状态">
-        <template #default="{ row }">
-          <el-tag :type="statusTagType[row.status]">{{ statusMap[row.status] }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="280">
-        <template #default="{ row }">
-          <el-button size="small" @click="viewDetails(row)">查看详情</el-button>
-          <el-button v-if="row.status === 0" size="small" type="primary" @click="executePlan(row)">执行</el-button>
-          <el-button v-if="row.status === 1" size="small" type="warning" @click="cancelExecution(row)">取消执行</el-button>
-          <el-button v-if="row.status === 1" size="small" type="success" @click="completePlan(row)">完成</el-button>
-          <el-button v-if="row.status === 0" size="small" type="danger" @click="deletePlan(row.id)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-sizes="[10, 20, 30, 40]"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="filteredAndSortedPlans.length">
-    </el-pagination>
+  <div class="follow-up-plan-list-container">
+    <el-page-header v-if="from === 'plan'" @back="goBack" content="随访计划列表" class="page-header"></el-page-header>
+    <el-card class="filter-card">
+      <el-form :inline="true" :model="filters" class="filter-form">
+        <el-form-item label="老人姓名">
+          <el-select v-model="filters.elderName" placeholder="请选择或输入老人姓名" clearable filterable allow-create default-first-option>
+            <el-option v-for="elder in elderList" :key="elder" :label="elder" :value="elder"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="状态" class="status-filter">
+          <el-select v-model="filters.status" :placeholder="filters.status === '' ? '请选择状态' : statusMap[filters.status]" clearable filterable>
+            <el-option label="全部" value=""></el-option>
+            <el-option label="未执行" :value="0"></el-option>
+            <el-option label="进行中" :value="1"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <el-card class="table-card">
+      <el-table :data="paginatedPlans" style="width: 100%" :row-class-name="tableRowClassName" @sort-change="handleSortChange">
+        <el-table-column prop="id" label="ID" width="100"></el-table-column>
+        <el-table-column prop="elderName" label="老人姓名" width="150"></el-table-column>
+        <el-table-column prop="priority" label="优先级" sortable="custom">
+          <template #default="{ row }">
+            <el-tag :type="priorityTagType[row.priority]" effect="light">{{ priorityMap[row.priority] }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="planTime" label="随访计划时间" width="150" sortable="custom"></el-table-column>
+        <el-table-column prop="method" label="随访方式" width="100"></el-table-column>
+        <el-table-column prop="status" label="状态">
+          <template #default="{ row }">
+            <el-tag :type="statusTagType[row.status]" effect="light">{{ statusMap[row.status] }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="350">
+          <template #default="{ row }">
+            <el-button size="small" @click="viewDetails(row)" icon="el-icon-view">详情</el-button>
+            <el-button v-if="row.status === 0" size="small" type="primary" @click="executePlan(row)" icon="el-icon-s-promotion">执行</el-button>
+            <el-button v-if="row.status === 1" size="small" type="warning" @click="cancelExecution(row)" icon="el-icon-refresh-left">取消</el-button>
+            <el-button v-if="row.status === 1" size="small" type="success" @click="completePlan(row)" icon="el-icon-check">完成</el-button>
+            <el-button v-if="row.status === 0" size="small" type="danger" @click="deletePlan(row.id)" icon="el-icon-delete">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination-container">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[10, 20, 30, 40]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="filteredAndSortedPlans.length">
+        </el-pagination>
+      </div>
+    </el-card>
   </div>
 </template>
+
+<style scoped>
+.follow-up-plan-list-container {
+  padding: 20px;
+}
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+.filter-card {
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.filter-form {
+  padding: 10px;
+}
+
+.table-card {
+  border-radius: 10px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+}
+
+.el-table {
+  border-radius: 10px;
+}
+
+.el-button {
+  margin-right: 5px;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.status-filter .el-select {
+  min-width: 150px;
+}
+</style>
 
 
 

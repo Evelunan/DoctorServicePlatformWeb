@@ -1,25 +1,36 @@
 <template>
-  <el-card>
+  <el-card class="box-card">
     <template #header>
       <div class="card-header">
-        <span>{{ title }}</span>
+        <span class="title">{{ title }}</span>
       </div>
     </template>
-    <div v-if="activeTab === 'plan'">
-      <FollowUpPlan @plan-created="handlePlanCreated" />
-    </div>
-    <div v-if="activeTab === 'record'">
-      <FollowUpRecord :plan-id="selectedPlanId" @record-created="handleRecordCreated" @switch-tab="handleSwitchTab" />
-    </div>
-    <div v-if="activeTab === 'history'">
-      <FollowUpHistoryList v-if="currentHistoryView === 'list'" :from="previousTab" @view-details="showHistoryDetail" @back="goBack" />
-      <FollowUpHistoryDetail v-if="currentHistoryView === 'detail'" :record-id="selectedHistoryRecord.id" @back="showHistoryList" />
-    </div>
-    
-    <div v-if="activeTab === 'plan-list'">
-      <FollowUpPlanList v-if="currentView === 'list'" :from="previousTab" @view-details="showPlanDetail" @back="goBack" />
-      <FollowUpPlanDetail v-if="currentView === 'detail'" :plan="selectedPlan" @back="showPlanList" @plan-updated="handlePlanUpdated" />
-    </div>
+    <transition name="fade" mode="out-in">
+      <div :key="activeTab">
+        <div v-if="activeTab === 'plan'">
+          <FollowUpPlan @plan-created="handlePlanCreated" />
+        </div>
+        <div v-if="activeTab === 'record'">
+          <FollowUpRecord :plan-id="selectedPlanId" @record-created="handleRecordCreated" @switch-tab="handleSwitchTab" />
+        </div>
+        <div v-if="activeTab === 'history'">
+          <transition name="fade" mode="out-in">
+            <div :key="currentHistoryView">
+              <FollowUpHistoryList v-if="currentHistoryView === 'list'" :from="previousTab" @view-details="showHistoryDetail" @back="goBack" />
+              <FollowUpHistoryDetail v-if="currentHistoryView === 'detail'" :record-id="selectedHistoryRecord.id" @back="showHistoryList" />
+            </div>
+          </transition>
+        </div>
+        <div v-if="activeTab === 'plan-list'">
+          <transition name="fade" mode="out-in">
+            <div :key="currentView">
+              <FollowUpPlanList v-if="currentView === 'list'" :from="previousTab" @view-details="showPlanDetail" @back="goBack" />
+              <FollowUpPlanDetail v-if="currentView === 'detail'" :plan="selectedPlan" @back="showPlanList" @plan-updated="handlePlanUpdated" />
+            </div>
+          </transition>
+        </div>
+      </div>
+    </transition>
   </el-card>
 </template>
 
@@ -65,11 +76,18 @@ const tabMap = {
   '4-1': 'plan-list' // Assuming a new menu item with index 4-4
 }
 
-watch(() => props.activeSubMenu, (newVal) => {
+watch(() => props.activeSubMenu, (newVal, oldVal) => {
   if (tabMap[newVal]) {
-    activeTab.value = tabMap[newVal]
+    activeTab.value = tabMap[newVal];
+    // If the user navigates away and comes back, reset the view
+    if (newVal !== oldVal) {
+      currentView.value = 'list';
+      currentHistoryView.value = 'list';
+      selectedPlan.value = null;
+      selectedHistoryRecord.value = null;
+    }
   }
-}, { immediate: true })
+}, { immediate: true });
 
 
 
@@ -134,9 +152,37 @@ function showHistoryList() {
 </script>
 
 <style scoped>
+.box-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.box-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid #e4e7ed;
+  padding-bottom: 10px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #303133;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <el-page-header @back="goBack" content="随访历史详情"></el-page-header>
-    <el-card class="box-card">
+  <div class="follow-up-history-detail-container">
+    <el-page-header @back="goBack" content="随访历史详情" class="page-header"></el-page-header>
+    <el-card class="detail-card">
       <el-descriptions :column="1" border>
         <el-descriptions-item label="ID">{{ detailedRecord.id }}</el-descriptions-item>
         <el-descriptions-item label="计划ID">{{ detailedRecord.planId }}</el-descriptions-item>
@@ -9,7 +9,7 @@
         <el-descriptions-item label="老人姓名">{{ detailedRecord.elderName }}</el-descriptions-item>
         <el-descriptions-item label="随访时间">{{ detailedRecord.followupTime }}</el-descriptions-item>
         <el-descriptions-item label="健康状况">
-          <el-tag :type="healthStatusTagType(detailedRecord.healthStatus)">
+          <el-tag :type="healthStatusTagType(detailedRecord.healthStatus)" effect="light">
             {{ healthStatusText(detailedRecord.healthStatus) }}
           </el-tag>
         </el-descriptions-item>
@@ -68,7 +68,17 @@ const healthStatusTagType = (status) => {
 </script>
 
 <style scoped>
-.box-card {
-  margin-top: 20px;
+.follow-up-history-detail-container {
+  padding: 20px;
+}
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+.detail-card {
+  border-radius: 10px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+  padding: 20px;
 }
 </style>

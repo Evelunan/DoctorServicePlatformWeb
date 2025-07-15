@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <el-page-header @back="goBack" content="随访计划详情"></el-page-header>
-    <el-card class="box-card">
+  <div class="follow-up-plan-detail-container">
+    <el-page-header @back="goBack" content="随访计划详情" class="page-header"></el-page-header>
+    <el-card class="detail-card">
       <div v-if="!editMode" class="detail-view">
         <el-descriptions :column="1" border>
           <el-descriptions-item label="ID">{{ plan.id }}</el-descriptions-item>
@@ -10,15 +10,17 @@
           <el-descriptions-item label="随访方式">{{ plan.method }}</el-descriptions-item>
           <el-descriptions-item label="计划内容">{{ plan.notes }}</el-descriptions-item>
           <el-descriptions-item label="优先级">
-            <el-tag :type="priorityTagType[plan.priority]">{{ priorityMap[plan.priority] }}</el-tag>
+            <el-tag :type="priorityTagType[plan.priority]" effect="light">{{ priorityMap[plan.priority] }}</el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="状态">
-            <el-tag :type="statusTagType[plan.status]">{{ statusMap[plan.status] }}</el-tag>
+            <el-tag :type="statusTagType[plan.status]" effect="light">{{ statusMap[plan.status] }}</el-tag>
           </el-descriptions-item>
         </el-descriptions>
-        <el-button type="primary" @click="editMode = true" style="margin-top: 20px;">编辑</el-button>
+        <div class="button-group">
+          <el-button type="primary" @click="editMode = true" icon="el-icon-edit">编辑</el-button>
+        </div>
       </div>
-      <div v-else>
+      <div v-else class="edit-view">
         <el-form :model="editablePlan" label-width="120px">
           <el-form-item label="随访计划时间">
             <el-date-picker
@@ -36,7 +38,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="计划内容">
-            <el-input type="textarea" v-model="editablePlan.notes"></el-input>
+            <el-input type="textarea" v-model="editablePlan.notes" :rows="3"></el-input>
           </el-form-item>
           <el-form-item label="优先级">
             <el-radio-group v-model="editablePlan.priority">
@@ -47,9 +49,9 @@
             </el-radio-group>
           </el-form-item>
 
-          <el-form-item>
-            <el-button type="primary" @click="savePlan">保存</el-button>
-            <el-button @click="goBack">取消</el-button>
+          <el-form-item class="form-buttons">
+            <el-button type="primary" @click="savePlan" icon="el-icon-check">保存</el-button>
+            <el-button @click="goBack" icon="el-icon-close">取消</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -121,7 +123,37 @@ async function savePlan() {
 </script>
 
 <style scoped>
-.box-card {
+.follow-up-plan-detail-container {
+  padding: 20px;
+}
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+.detail-card {
+  border-radius: 10px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+}
+
+.detail-view, .edit-view {
+  padding: 20px;
+}
+
+.el-descriptions {
+  margin-bottom: 20px;
+}
+
+.button-group {
+  text-align: right;
   margin-top: 20px;
+}
+
+.form-buttons {
+  text-align: right;
+}
+
+.el-button {
+  margin-left: 10px;
 }
 </style>
