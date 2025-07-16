@@ -52,7 +52,44 @@
               </el-form-item>
             </el-col>
           </el-row>
-
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="诊断日期" prop="diagnosisDate">
+                <el-date-picker
+                  v-model="history.diagnosisDate"
+                  type="date"
+                  placeholder="选择诊断日期"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  :disabled="!editMode"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="复发时间" prop="relapseDate">
+                <el-date-picker
+                  v-model="history.relapseDate"
+                  type="date"
+                  placeholder="选择复发时间"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  :disabled="!editMode"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="疾病状态" prop="status">
+                <el-select v-model="history.status" :disabled="!editMode" placeholder="请选择状态" style="width: 100%">
+                  <el-option label="治疗中" :value="0" />
+                  <el-option label="康复" :value="1" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
           <el-form-item label="备注" prop="notes">
             <el-input
               v-model="history.notes"
@@ -88,6 +125,9 @@ const addFamilyHistory = () => {
     id: null,
     relation: '',
     diseaseName: '',
+    diagnosisDate: '',
+    relapseDate: '',
+    status: 0,
     notes: '',
     userId: null
   })

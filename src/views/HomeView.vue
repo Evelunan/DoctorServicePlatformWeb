@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+// import { ElMessage } from 'element-plus'
 import UserProfile from '../components/UserProfile.vue'
 import HealthArchive from '@/components/health-archive/CompleteHealthArchive.vue'
 import PatientList from '../components/PatientList.vue'
