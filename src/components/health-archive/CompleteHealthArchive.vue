@@ -189,13 +189,8 @@ const saveArchive = async () => {
       archiveData.familyDiseaseHistory.forEach(item => item.userId = userId)
     }
 
-    // 触发保存事件
+    // 触发保存事件，由父组件决定何时切换editMode
     emit('save', archiveData)
-
-    // 只有在查看现有档案时才退出编辑模式
-    if (props.userId || props.patientData) {
-      editMode.value = false
-    }
   } catch (error) {
     ElMessage.error(error.message || '保存失败，请检查表单信息')
   }
