@@ -69,6 +69,16 @@
               </el-select>
             </template>
           </el-table-column>
+          <el-table-column prop="lower" width="180">
+            <template #header>
+              <el-tooltip content="与复发时间差小于该值预警" placement="top">
+                <span style="cursor: help; border-bottom: 1px dashed #999;">复发预警天数</span>
+              </el-tooltip>
+            </template>
+            <template #default="scope">
+              <el-input-number v-model="scope.row.lower" :min="1" :max="3650" :step="1" size="small" style="width: 120px" :placeholder="'天数'" />
+            </template>
+          </el-table-column>
           <el-table-column prop="enabled" label="是否启用" width="100">
             <template #default="scope">
               <el-switch v-model="scope.row.enabled" />
@@ -97,6 +107,16 @@
               <el-select v-model="scope.row.level" size="small" style="width: 90px">
                 <el-option v-for="item in levelOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
+            </template>
+          </el-table-column>
+          <el-table-column prop="lower" width="180">
+            <template #header>
+              <el-tooltip content="与复发时间差小于该值预警" placement="top">
+                <span style="cursor: help; border-bottom: 1px dashed #999;">复发预警天数</span>
+              </el-tooltip>
+            </template>
+            <template #default="scope">
+              <el-input-number v-model="scope.row.lower" :min="1" :max="3650" :step="1" size="small" style="width: 120px" :placeholder="'天数'" />
             </template>
           </el-table-column>
           <el-table-column prop="enabled" label="是否启用" width="100">
@@ -187,7 +207,8 @@ onMounted(async () => {
     if (historyRes && historyRes.data) {
       historyDiseaseList.value = historyRes.data.data.map(item => ({
         ...item,
-        type: 1
+        type: 1,
+        lower: item.lower ?? ''
       }))
     }
     // 获取家族病史
@@ -195,7 +216,8 @@ onMounted(async () => {
     if (familyRes && familyRes.data) {
       familyDiseaseList.value = familyRes.data.data.map(item => ({
         ...item,
-        type: 2
+        type: 2,
+        lower: item.lower ?? ''
       }))
     }
   } catch {
@@ -264,7 +286,7 @@ function addHistoryDisease() {
   historyDiseaseList.value.push({
     index: tempIndex++,
     name: '',
-    lower: null,
+    lower: '',
     upper: null,
     level: 2,
     type: 1,
@@ -276,7 +298,7 @@ function addFamilyDisease() {
   familyDiseaseList.value.push({
     index: tempIndex++,
     name: '',
-    lower: null,
+    lower: '',
     upper: null,
     level: 2,
     type: 2,
