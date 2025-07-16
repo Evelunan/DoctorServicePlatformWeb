@@ -117,7 +117,7 @@ const addDisease = () => {
     diseaseName: '',
     diagnosisDate: '',
     relapseDate: '',
-    status: 0,
+    status: '0',
     notes: '',
     userId: null
   })
@@ -151,7 +151,8 @@ const validate = () => {
   // 检查每个病史记录是否完整
   for (let i = 0; i < diseaseList.value.length; i++) {
     const disease = diseaseList.value[i]
-    if (!disease.diseaseName || !disease.diagnosisDate || !disease.status) {
+    if (!disease.diseaseName || !disease.diagnosisDate || disease.status === null || disease.status === undefined) {
+      console.log(disease)
       return Promise.reject(new Error(`病史记录 ${i + 1} 信息不完整`))
     }
   }

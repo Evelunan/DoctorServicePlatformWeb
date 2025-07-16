@@ -127,7 +127,7 @@ const addFamilyHistory = () => {
     diseaseName: '',
     diagnosisDate: '',
     relapseDate: '',
-    status: 0,
+    status: '0',
     notes: '',
     userId: null
   })
@@ -161,7 +161,8 @@ const validate = () => {
   // 检查每个家族病史记录是否完整
   for (let i = 0; i < familyHistoryList.value.length; i++) {
     const history = familyHistoryList.value[i]
-    if (!history.relation || !history.diseaseName) {
+    if (!history.relation || !history.diseaseName || history.status === null || history.status === undefined) {
+      console.log(history)
       return Promise.reject(new Error(`家族病史记录 ${i + 1} 信息不完整`))
     }
   }

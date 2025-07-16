@@ -196,16 +196,17 @@ const initialForm = {
 }
 
 const rules = {
-  height: [{ required: true, message: '请输入身高', trigger: 'blur' }],
-  weight: [{ required: true, message: '请输入体重', trigger: 'blur' }],
-  bloodType: [{ required: true, message: '请选择血型', trigger: 'change' }],
-  disability: [{ required: true, message: '请选择是否残疾', trigger: 'change' }],
-  systolic: [{ required: false, type: 'number', message: '请输入收缩压', trigger: 'blur' }],
-  diastolic: [{ required: false, type: 'number', message: '请输入舒张压', trigger: 'blur' }],
-  fastingGlucose: [{ required: false, type: 'number', message: '请输入空腹血糖', trigger: 'blur' }],
-  spo2: [{ required: false, type: 'number', message: '请输入血氧饱和度', trigger: 'blur' }],
-  heartRate: [{ required: false, type: 'number', message: '请输入心率', trigger: 'blur' }],
-  temperature: [{ required: false, type: 'number', message: '请输入体温', trigger: 'blur' }]
+  height: [],
+  weight: [],
+  systolic: [],
+  diastolic: [],
+  fastingGlucose: [],
+  spo2: [],
+  heartRate: [],
+  temperature: [],
+  bloodType: [],
+  disability: [],
+  allergies: []
 }
 
 // 计算BMI
