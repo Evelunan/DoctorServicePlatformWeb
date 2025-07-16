@@ -91,3 +91,4 @@ export const useUserStore = defineStore('user', () => {
     checkAuth
   }
 })
+ 

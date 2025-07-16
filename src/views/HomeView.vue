@@ -8,6 +8,7 @@ import PatientList from '../components/PatientList.vue'
 import { useUserStore } from '@/stores/user'
 import FollowUpView from './FollowUpView.vue'
 import WarningRuleManager from '@/components/health-warning/WarningRuleManager.vue'
+import WarningHandle from '@/components/health-warning/WarningHandle.vue'
 import {
   User, ArrowDown, Setting, SwitchButton,
   UserFilled, Document, DataAnalysis,
@@ -80,7 +81,7 @@ const currentComponent = computed(() => {
   }
   const map = {
     '3-1': WarningRuleManager,
-    '3-2': { template: '<div>预警处理功能区</div>' },
+    '3-2': WarningHandle,
     '3-3': { template: '<div>预警历史查询功能区</div>' },
     '5-1': { template: '<div>干预措施制定功能区</div>' },
     '5-2': { template: '<div>健康评估报告功能区</div>' },
@@ -248,6 +249,10 @@ const currentComponent = computed(() => {
 
           <div v-else-if="activeMenu.startsWith('4-')">
             <FollowUpView :active-sub-menu="activeMenu" />
+          </div>
+
+          <div v-else-if="activeMenu === '3-2'">
+            <WarningHandle />
           </div>
 
           <!-- 其他页面 -->
