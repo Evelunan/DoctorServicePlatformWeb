@@ -12,7 +12,19 @@ POST /api/user/login
 }
 ```
 
-## 2. 获取当前用户信息接口
+## 2. 修改密码接口
+```
+PUT /api/user/updatePassword
+Header: token: {token}
+参数: oldPassword, newPassword
+返回:
+{
+    "code": 0,
+    "message": "密码修改成功"
+}
+```
+
+## 3. 获取当前用户信息接口
 ```
 GET /api/user/getCurrentUser
 Header: token: {token}
@@ -103,4 +115,4 @@ public class UserController {
         return Result.success(user);
     }
 }
-``` 
+```

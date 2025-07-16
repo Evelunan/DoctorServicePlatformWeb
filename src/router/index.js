@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
-import RegisterView from '@/views/RegisterView.vue'
+import RegisterView from '../views/RegisterView.vue'
+import UpdatePasswordView from '../views/UpdatePasswordView.vue'
 import { useUserStore } from '@/stores/user'
 import FollowUpView from '@/views/FollowUpView.vue'
 
@@ -22,7 +23,13 @@ const router = createRouter({
     {
       path: '/register',
       name: 'register',
-      component: RegisterView,
+      component: RegisterView
+    },
+    {
+      path: '/update-password',
+      name: 'update-password',
+      component: UpdatePasswordView,
+      meta: { requiresAuth: true }
     },
      {
       path: '/follow-up',

@@ -6,6 +6,7 @@ POST /api/user/login                    - 用户登录
 POST /api/user/register                 - 用户注册  
 GET  /api/user/getCurrentUser           - 获取当前用户信息
 PUT  /api/user/updateUser               - 更新用户信息
+PUT  /api/user/updatePassword           - 修改密码
 ```
 
 ## 病人相关接口
@@ -107,4 +108,4 @@ public class Result<T> {
    - POST/PUT请求使用 `@RequestBody` 接收JSON数据
    - DELETE请求可以同时使用路径参数和查询参数
 3. **权限验证**：所有需要登录的接口都需要验证token
-4. **返回格式**：统一使用 `Result<T>` 格式返回数据 
+4. **返回格式**：统一使用 `Result<T>` 格式返回数据

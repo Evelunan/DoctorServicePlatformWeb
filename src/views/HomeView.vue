@@ -58,9 +58,8 @@ function handleProfile() {
 }
 
 // 处理修改密码
-function handleChangePassword() {
-  // 这里可以打开修改密码对话框或跳转到修改密码页面
-  ElMessage.info('修改密码功能开发中...')
+function goToUpdatePassword() {
+  router.push('/update-password')
 }
 
 // 处理登出
@@ -111,7 +110,7 @@ const currentComponent = computed(() => {
                     <el-icon><User /></el-icon>
                     个人信息
                   </el-dropdown-item>
-                  <el-dropdown-item @click="handleChangePassword">
+                  <el-dropdown-item @click="goToUpdatePassword">
                     <el-icon><Lock /></el-icon>
                     修改密码
                   </el-dropdown-item>

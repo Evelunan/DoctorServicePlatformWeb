@@ -13,7 +13,10 @@ export const register = (account, password) => {
     params: { account, password }
   })
 }
-
+//修改密码
+export const updatePassword = (data) =>{
+  return httpInstance.put('/user/updatePassword', null, { params: data })
+}
 // 获取当前用户信息（根据token获取）
 export const getCurrentUser = () => {
   return httpInstance.get('/user/getCurrentUser')

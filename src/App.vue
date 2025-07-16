@@ -14,12 +14,14 @@ import { RouterView } from 'vue-router'
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body,
+#app {
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
 }
 
-#app {
-  height: 100vh;
-}
+
 </style>
