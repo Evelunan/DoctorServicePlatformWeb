@@ -11,8 +11,8 @@ import WarningRuleManager from '@/components/health-warning/WarningRuleManager.v
 import WarningHandle from '@/components/health-warning/WarningHandle.vue'
 import {
   User, ArrowDown, Setting, SwitchButton,
-  UserFilled, Document, DataAnalysis,
-  Warning, Bell, Clock, Calendar, Plus, Tools, ArrowLeft, Lock
+  UserFilled, Document,
+  Warning, Bell, Calendar, Plus, ArrowLeft, Lock
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -82,10 +82,6 @@ const currentComponent = computed(() => {
   const map = {
     '3-1': WarningRuleManager,
     '3-2': WarningHandle,
-    '3-3': { template: '<div>预警历史查询功能区</div>' },
-    '5-1': { template: '<div>干预措施制定功能区</div>' },
-    '5-2': { template: '<div>健康评估报告功能区</div>' },
-    '5-3': { template: '<div>历史评估管理功能区</div>' },
   }
   return map[activeMenu.value] || { template: '<div>请选择左侧功能</div>' }
 })
@@ -173,10 +169,6 @@ const currentComponent = computed(() => {
                 <el-icon><Bell /></el-icon>
                 预警处理
               </el-menu-item>
-              <el-menu-item index="3-3">
-                <el-icon><Clock /></el-icon>
-                预警历史查询
-              </el-menu-item>
             </el-sub-menu>
             <el-sub-menu index="4">
               <template #title>
@@ -200,24 +192,6 @@ const currentComponent = computed(() => {
                 随访历史查看
               </el-menu-item>
 
-            </el-sub-menu>
-            <el-sub-menu index="5">
-              <template #title>
-                <el-icon><DataAnalysis /></el-icon>
-                <span>随访干预与健康评估</span>
-              </template>
-              <el-menu-item index="5-1">
-                <el-icon><Tools /></el-icon>
-                干预措施制定
-              </el-menu-item>
-              <el-menu-item index="5-2">
-                <el-icon><Document /></el-icon>
-                健康评估报告
-              </el-menu-item>
-              <el-menu-item index="5-3">
-                <el-icon><Clock /></el-icon>
-                历史评估管理
-              </el-menu-item>
             </el-sub-menu>
           </el-menu>
         </el-aside>
