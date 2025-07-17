@@ -11,9 +11,9 @@ export const useUserStore = defineStore('user', () => {
   // 计算属性
   const userId = computed(() => userInfo.value?.id)
   const userName = computed(() => userInfo.value?.name || userInfo.value?.username)
-  const userRole = computed(() => userInfo.value?.role)
-  const isDoctor = computed(() => userInfo.value?.role === 'doctor')
-  const isAdmin = computed(() => userInfo.value?.role === 'admin')
+  const userType = computed(() => userInfo.value?.type)
+  const isDoctor = computed(() => userType.value === 0)
+  const isElderly = computed(() => userType.value === 1)
 
   // 设置用户信息
   const setUserInfo = (user) => {
@@ -78,9 +78,10 @@ export const useUserStore = defineStore('user', () => {
     // 计算属性
     userId,
     userName,
-    userRole,
+    userType,
     isDoctor,
-    isAdmin,
+    isElderly,
+    
 
     // 方法
     setUserInfo,
@@ -91,4 +92,3 @@ export const useUserStore = defineStore('user', () => {
     checkAuth
   }
 })
- 

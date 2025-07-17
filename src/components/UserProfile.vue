@@ -176,7 +176,7 @@ const ageDisplay = computed(() => {
 })
 
 const userRole = computed(() => {
-  return form.value.type === 1 ? '医生' : '用户'
+  return form.value.type === 0 ? '医生' : '用户'
 })
 
 const avatarUrl = computed(() => {
