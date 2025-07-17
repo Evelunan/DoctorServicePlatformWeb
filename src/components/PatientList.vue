@@ -3,7 +3,7 @@
     <template #header>
       <div class="card-header">
         <span>我的病人列表</span>
-        <el-button type="primary" size="small" @click="addPatient">添加病人</el-button>
+        <el-button v-if="!userStore.isElderly" type="primary" size="small" @click="addPatient">添加病人</el-button>
       </div>
     </template>
 
@@ -21,7 +21,7 @@
       <el-table-column label="操作" width="150">
         <template #default="scope">
           <el-button size="small" @click.stop="viewArchive(scope.row)">查看档案</el-button>
-          <el-button size="small" type="danger" @click.stop="removePatient(scope.row)">移除</el-button>
+          <el-button v-if="!userStore.isElderly" size="small" type="danger" @click.stop="removePatient(scope.row)">移除</el-button>
         </template>
       </el-table-column>
     </el-table>

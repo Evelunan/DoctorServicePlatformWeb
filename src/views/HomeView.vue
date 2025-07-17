@@ -148,11 +148,11 @@ const currentComponent = computed(() => {
             <el-sub-menu index="2">
               <template #title>
                 <el-icon><Document /></el-icon>
-                <span>健康档案管理</span>
+                <span>健康档案</span>
               </template>
               <el-menu-item index="2-1">
                 <el-icon><UserFilled /></el-icon>
-                病人管理
+                档案管理
               </el-menu-item>
             </el-sub-menu>
             <el-sub-menu index="3">
@@ -160,7 +160,7 @@ const currentComponent = computed(() => {
                 <el-icon><Warning /></el-icon>
                 <span>健康预警</span>
               </template>
-              <el-menu-item index="3-1">
+              <el-menu-item index="3-1" v-if="!userStore.isElderly">
                 <el-icon><Setting /></el-icon>
                 预警规则管理
               </el-menu-item>

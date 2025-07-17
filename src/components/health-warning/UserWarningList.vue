@@ -24,8 +24,19 @@
       </el-table-column>
       <el-table-column label="操作" width="120">
         <template #default="scope">
+          <el-tooltip
+            v-if="!scope.row.status && userStore.isElderly"
+            content="等待医生处理"
+            placement="top"
+          >
+            <el-button
+              type="primary"
+              size="small"
+              disabled
+            >处理</el-button>
+          </el-tooltip>
           <el-button
-            v-if="!scope.row.status"
+            v-else-if="!scope.row.status && !userStore.isElderly"
             type="primary"
             size="small"
             @click="openHandleDialog(scope.row)"
@@ -89,6 +100,9 @@ import { ref, watch, onMounted } from 'vue'
 import { getWarningInfo, updatWarningInfo } from '@/api/warningProcess'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
 
 const props = defineProps({
   userId: {
