@@ -3,11 +3,11 @@ import httpInstance from '@/utils/http'
 export const getBaseWarningRules = () => {
   return httpInstance.get('/healthWarning/baseList')
 }
-export const getDiseaseList = () => {
-  return httpInstance.get('/healthWarning/diseaseList')
+export const getDiseaseList = (params) => {
+  return httpInstance.get('/healthWarning/diseaseList', { params })
 }
-export const getFamilyList = () => {
-  return httpInstance.get('/healthWarning/familyList')
+export const getFamilyList = (params) => {
+  return httpInstance.get('/healthWarning/familyList', { params })
 }
 
 export const saveWarningRulesAPI = (data) => {

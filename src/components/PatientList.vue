@@ -26,6 +26,17 @@
       </el-table-column>
     </el-table>
 
+    <div class="pagination-container">
+      <el-pagination
+        v-model:current-page="pageNum"
+        v-model:page-size="pageSize"
+        :page-sizes="[10, 20, 50]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
 
 
     <!-- 健康档案弹窗，支持查看/编辑/添加 -->
@@ -82,6 +93,10 @@ const patientArchiveDialogVisible = ref(false)
 const currentPatientArchive = ref(null)
 const archiveMode = ref('view') // 'view' | 'edit'
 
+const pageNum = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+
 
 onMounted(() => {
   loadPatientList()
@@ -90,9 +105,14 @@ onMounted(() => {
 // 加载病人列表
 const loadPatientList = async () => {
   try {
-    const res = await getPatientList()
+    const res = await getPatientList({
+      doctorId: userStore.userId,
+      pageNum: pageNum.value,
+      pageSize: pageSize.value
+    })
     if (res && res.data && res.data.code === 0) {
-      patientList.value = res.data.data || []
+      patientList.value = res.data.data.list || []
+      total.value = res.data.data.total || 0
     } else {
       ElMessage.error(res.data?.message || '加载病人列表失败')
     }
@@ -100,6 +120,16 @@ const loadPatientList = async () => {
     console.error('加载病人列表失败:', error)
     ElMessage.error('加载病人列表失败')
   }
+}
+
+const handleCurrentChange = (val) => {
+  pageNum.value = val
+  loadPatientList()
+}
+const handleSizeChange = (val) => {
+  pageSize.value = val
+  pageNum.value = 1
+  loadPatientList()
 }
 
 // 修改：查看档案
@@ -244,5 +274,11 @@ const cancelEdit = () => {
   padding: 20px;
   background: #f5f7fa;
   border-top: 1px solid #e4e7ed;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>

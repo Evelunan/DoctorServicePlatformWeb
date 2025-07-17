@@ -40,6 +40,19 @@
       </el-table-column>
     </el-table>
 
+    <!-- 分页组件 -->
+    <div class="pagination-container">
+      <el-pagination
+        v-model:current-page="pageNum"
+        v-model:page-size="pageSize"
+        :page-sizes="[10, 20, 30, 40, 50]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
+
     <!-- 处理弹窗 -->
     <el-dialog v-model="handleDialogVisible" title="预警处理" width="400px">
       <div>
@@ -83,6 +96,12 @@ const props = defineProps({
     required: true
   }
 })
+
+// 分页相关状态
+const pageNum = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+
 const warnings = ref([])
 
 const loadWarnings = async () => {
@@ -91,9 +110,10 @@ const loadWarnings = async () => {
     return
   }
   try {
-    const res = await getWarningInfo(props.userId)
+    const res = await getWarningInfo(props.userId, pageNum.value, pageSize.value)
     if (res && res.data && res.data.code === 0) {
-      warnings.value = res.data.data || []
+      warnings.value = res.data.data.list || []
+      total.value = res.data.data.total || 0
     } else {
       warnings.value = []
       ElMessage.error(res.data?.message || '获取预警信息失败')
@@ -104,8 +124,24 @@ const loadWarnings = async () => {
   }
 }
 
+// 处理页码变化
+const handleCurrentChange = (val) => {
+  pageNum.value = val
+  loadWarnings()
+}
+
+// 处理每页条数变化
+const handleSizeChange = (val) => {
+  pageSize.value = val
+  pageNum.value = 1
+  loadWarnings()
+}
+
 onMounted(loadWarnings)
-watch(() => props.userId, loadWarnings)
+watch(() => props.userId, () => {
+  pageNum.value = 1
+  loadWarnings()
+})
 
 function getLevelText(level) {
   if (level === 0) return '极高危'
@@ -158,3 +194,11 @@ function openViewDialog(row) {
   viewDialogVisible.value = true
 }
 </script>
+
+<style scoped>
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+</style>

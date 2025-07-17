@@ -1,8 +1,8 @@
 import httpInstance from '@/utils/http'
 
 // 获取医生的病人列表
-export const getPatientList = () => {
-  return httpInstance.get(`/patient/list`)
+export const getPatientList = (params) => {
+  return httpInstance.get(`/patient/list`, { params })
 }
 
 // 添加病人

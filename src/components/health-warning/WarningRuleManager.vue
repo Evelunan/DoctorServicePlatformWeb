@@ -86,7 +86,7 @@
           </el-table-column>
           <el-table-column label="操作" width="120">
             <template #default="scope">
-              <el-button type="danger" size="small" @click="removeHistoryDisease(scope.row.id)">移除</el-button>
+              <el-button type="danger" size="small" @click="removeHistoryDisease(scope.row.id, scope.$index)">移除</el-button>
             </template>
           </el-table-column>
           <template #empty>
@@ -94,6 +94,17 @@
           </template>
         </el-table>
         <el-button icon="el-icon-plus" size="small" @click="addHistoryDisease" style="margin:8px 0;">新增</el-button>
+        <div class="pagination-container">
+          <el-pagination
+            :current-page="historyPageNum"
+            :page-size="historyPageSize"
+            :total="historyTotal"
+            :page-sizes="[10, 20, 50]"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleHistorySizeChange"
+            @current-change="handleHistoryPageChange"
+          />
+        </div>
       </el-tab-pane>
       <el-tab-pane label="家族病史" name="family">
         <el-table :data="familyDiseaseList" row-key="id" style="width: 100%" stripe border class="rule-table">
@@ -126,7 +137,7 @@
           </el-table-column>
           <el-table-column label="操作" width="120">
             <template #default="scope">
-              <el-button type="danger" size="small" @click="removeFamilyDisease(scope.row.id)">移除</el-button>
+              <el-button type="danger" size="small" @click="removeFamilyDisease(scope.row.id, scope.$index)">移除</el-button>
             </template>
           </el-table-column>
           <template #empty>
@@ -134,6 +145,17 @@
           </template>
         </el-table>
         <el-button icon="el-icon-plus" size="small" @click="addFamilyDisease" style="margin:8px 0;">新增</el-button>
+        <div class="pagination-container">
+          <el-pagination
+            :current-page="familyPageNum"
+            :page-size="familyPageSize"
+            :total="familyTotal"
+            :page-sizes="[10, 20, 50]"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleFamilySizeChange"
+            @current-change="handleFamilyPageChange"
+          />
+        </div>
       </el-tab-pane>
     </el-tabs>
     <div class="footer-bar">
@@ -190,6 +212,29 @@ const typeMap = {
   '血氧饱和度': 'spo2'
 }
 
+// 既往病史分页
+const historyPageNum = ref(1)
+const historyPageSize = ref(10)
+const historyTotal = ref(0)
+// 家族病史分页
+const familyPageNum = ref(1)
+const familyPageSize = ref(10)
+const familyTotal = ref(0)
+
+const loadHistoryDiseaseList = async () => {
+  const res = await getDiseaseList({ pageNum: historyPageNum.value, pageSize: historyPageSize.value })
+  if (res && res.data && res.data.code === 0) {
+    historyDiseaseList.value = res.data.data.list.map(item => ({ ...item, type: 1, lower: item.lower ?? '' }))
+    historyTotal.value = res.data.data.total
+  }
+}
+const loadFamilyDiseaseList = async () => {
+  const res = await getFamilyList({ pageNum: familyPageNum.value, pageSize: familyPageSize.value })
+  if (res && res.data && res.data.code === 0) {
+    familyDiseaseList.value = res.data.data.list.map(item => ({ ...item, type: 2, lower: item.lower ?? '' }))
+    familyTotal.value = res.data.data.total
+  }
+}
 onMounted(async () => {
   try {
     const res = await getBaseWarningRules()
@@ -197,33 +242,37 @@ onMounted(async () => {
       allRules.value = res.data.data.map(item => ({
         ...item,
         type: typeMap[item.name] || 'bmi',
-        // level: levelMap[item.level] ?? 'warning',
         hasLower: true,
         hasUpper: true
       }))
     }
-    // 获取既往病史
-    const historyRes = await getDiseaseList()
-    if (historyRes && historyRes.data) {
-      historyDiseaseList.value = historyRes.data.data.map(item => ({
-        ...item,
-        type: 1,
-        lower: item.lower ?? ''
-      }))
-    }
-    // 获取家族病史
-    const familyRes = await getFamilyList()
-    if (familyRes && familyRes.data) {
-      familyDiseaseList.value = familyRes.data.data.map(item => ({
-        ...item,
-        type: 2,
-        lower: item.lower ?? ''
-      }))
-    }
+    await loadHistoryDiseaseList()
+    await loadFamilyDiseaseList()
   } catch {
     ElMessage.error('获取规则数据失败')
   }
 })
+
+// 既往病史分页事件
+const handleHistoryPageChange = (val) => {
+  historyPageNum.value = val
+  loadHistoryDiseaseList()
+}
+const handleHistorySizeChange = (val) => {
+  historyPageSize.value = val
+  historyPageNum.value = 1
+  loadHistoryDiseaseList()
+}
+// 家族病史分页事件
+const handleFamilyPageChange = (val) => {
+  familyPageNum.value = val
+  loadFamilyDiseaseList()
+}
+const handleFamilySizeChange = (val) => {
+  familyPageSize.value = val
+  familyPageNum.value = 1
+  loadFamilyDiseaseList()
+}
 
 const historyDiseaseList = ref([])
 const familyDiseaseList = ref([])
@@ -251,28 +300,28 @@ function rowClassName({ row }) {
 }
 
 
-function removeHistoryDisease(id) {
+function removeHistoryDisease(id, index) {
   if (!id) {
-    historyDiseaseList.value = historyDiseaseList.value.filter(item => item.index !== item.index)
+    historyDiseaseList.value.splice(index, 1)
     return
   }
   deleteWarningRulesAPI(id).then(res => {
     if (res && res.data) {
-      historyDiseaseList.value = historyDiseaseList.value.filter(item => item.id !== id)
+      loadHistoryDiseaseList()
       ElMessage.success('删除成功')
     } else {
       ElMessage.error(res.data.message)
     }
   })
 }
-function removeFamilyDisease(id) {
+function removeFamilyDisease(id, index) {
   if (!id) {
-    familyDiseaseList.value = familyDiseaseList.value.filter(item => item.index !== item.index)
+    familyDiseaseList.value.splice(index, 1)
     return
   }
   deleteWarningRulesAPI(id).then(res => {
     if (res && res.data) {
-      familyDiseaseList.value = familyDiseaseList.value.filter(item => item.id !== id)
+      loadFamilyDiseaseList()
       ElMessage.success('删除成功')
     } else {
       ElMessage.error(res.data.message)
@@ -420,5 +469,10 @@ function saveRules() {
 .row-disabled {
   background: #f5f5f5 !important;
   color: #bbb !important;
+}
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>

@@ -24,6 +24,19 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- 分页组件 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="pageNum"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 30, 40, 50]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </template>
     <template v-else>
       <el-button @click="backToList" type="primary" plain style="margin-bottom: 16px;">返回</el-button>
@@ -68,6 +81,11 @@ import UserWarningList from './UserWarningList.vue'
 import { listWarningUsers } from '@/api/warningProcess'
 import dayjs from 'dayjs'
 
+// 分页相关状态
+const pageNum = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+
 // 预警用户列表
 const warningUsers = ref([])
 const selectedUser = ref(null)
@@ -110,17 +128,35 @@ function getTagType(level) {
   return 'info'
 }
 
-onMounted(async () => {
+// 处理页码变化
+const handleCurrentChange = (val) => {
+  pageNum.value = val
+  loadWarningUsers()
+}
+
+// 处理每页条数变化
+const handleSizeChange = (val) => {
+  pageSize.value = val
+  pageNum.value = 1
+  loadWarningUsers()
+}
+
+const loadWarningUsers = async () => {
   try {
-    const res = await listWarningUsers()
+    const res = await listWarningUsers(pageNum.value, pageSize.value)
     if (res && res.data && res.data.code === 0) {
-      warningUsers.value = res.data.data || []
+      warningUsers.value = res.data.data.list || []
+      total.value = res.data.data.total || 0
     } else {
       ElMessage.error(res.data?.message || '获取预警用户失败')
     }
   } catch {
     ElMessage.error('获取预警用户失败')
   }
+}
+
+onMounted(async () => {
+  loadWarningUsers()
 })
 </script>
 
@@ -130,5 +166,11 @@ onMounted(async () => {
   padding: 24px;
   border-radius: 10px;
   min-height: 400px;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>
