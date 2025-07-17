@@ -296,7 +296,10 @@ const currentComponent = computed(() => {
 }
 
 .username {
-  font-weight: 500;
+  color: #409eff;
+  font-weight: bold;
+  font-size: 16px;
+  margin-left: 8px;
 }
 
 .aside {
