@@ -127,7 +127,7 @@ const addFamilyHistory = () => {
     diseaseName: '',
     diagnosisDate: '',
     relapseDate: '',
-    status: '0',
+    status: 0,
     notes: '',
     userId: null
   })
