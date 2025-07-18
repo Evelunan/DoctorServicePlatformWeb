@@ -12,7 +12,7 @@ import WarningHandle from '@/components/health-warning/WarningHandle.vue'
 import {
   User, ArrowDown, Setting, SwitchButton,
   UserFilled, Document,
-  Warning, Bell, Calendar, Plus, ArrowLeft, Lock
+  Warning, Bell, Calendar, Plus, ArrowLeft, Lock, FolderOpened, Edit
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -172,25 +172,30 @@ const currentComponent = computed(() => {
             <el-sub-menu index="4">
               <template #title>
                 <el-icon><Calendar /></el-icon>
-                <span>重点人群随访管理</span>
+                <span>随访管理</span>
               </template>
-              <el-menu-item index="4-1">
-                <el-icon><FolderOpened /></el-icon>
-                随访计划列表
+              <el-menu-item v-if="userStore.isElderly" index="4-5">
+                <el-icon><Bell /></el-icon>
+                随访通知
               </el-menu-item>
-              <el-menu-item index="4-2">
-                <el-icon><Plus /></el-icon>
-                随访计划制定
-              </el-menu-item>
-              <el-menu-item index="4-3">
-                <el-icon><Edit /></el-icon>
-                随访记录填写
-              </el-menu-item>
-              <el-menu-item index="4-4">
-                <el-icon><Document /></el-icon>
-                随访历史查看
-              </el-menu-item>
-
+              <template v-if="!userStore.isElderly">
+                <el-menu-item index="4-1">
+                  <el-icon><FolderOpened /></el-icon>
+                  随访计划列表
+                </el-menu-item>
+                <el-menu-item index="4-2">
+                  <el-icon><Plus /></el-icon>
+                  随访计划制定
+                </el-menu-item>
+                <el-menu-item index="4-3">
+                  <el-icon><Edit /></el-icon>
+                  随访记录填写
+                </el-menu-item>
+                <el-menu-item index="4-4">
+                  <el-icon><Document /></el-icon>
+                  随访历史查看
+                </el-menu-item>
+              </template>
             </el-sub-menu>
           </el-menu>
         </el-aside>

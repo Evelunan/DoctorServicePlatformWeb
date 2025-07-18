@@ -29,6 +29,9 @@
             </div>
           </transition>
         </div>
+        <div v-if="activeTab === 'notice'">
+          <FollowUpNotice />
+        </div>
       </div>
     </transition>
   </el-card>
@@ -42,6 +45,7 @@ import FollowUpPlanList from '@/components/followup/FollowUpPlanList.vue'
 import FollowUpPlanDetail from '@/components/followup/FollowUpPlanDetail.vue'
 import FollowUpHistoryList from '@/components/followup/FollowUpHistoryList.vue'
 import FollowUpHistoryDetail from '@/components/followup/FollowUpHistoryDetail.vue'
+import FollowUpNotice from '@/components/followup/FollowUpNotice.vue'
 
 const props = defineProps({
   activeSubMenu: {
@@ -64,7 +68,8 @@ const title = computed(() => {
     plan: '随访计划制定',
     record: '随访记录填写',
     history: '随访历史查看',
-    'plan-list': '随访计划列表'
+    'plan-list': '随访计划列表',
+    notice: '随访通知'
   }
   return titleMap[activeTab.value] || '重点人群随访管理'
 })
@@ -73,7 +78,8 @@ const tabMap = {
   '4-2': 'plan',
   '4-3': 'record',
   '4-4': 'history',
-  '4-1': 'plan-list' // Assuming a new menu item with index 4-4
+  '4-1': 'plan-list',
+  '4-5': 'notice'
 }
 
 watch(() => props.activeSubMenu, (newVal, oldVal) => {

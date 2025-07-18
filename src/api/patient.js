@@ -5,6 +5,11 @@ export const getPatientList = (params) => {
   return httpInstance.get(`/patient/list`, { params })
 }
 
+// 获取医生的病人列表
+export const getPatientIdAndName = () => {
+  return httpInstance.get(`/patient/idAndName`)
+}
+
 // 添加病人
 export const addPatient = (data) => {
   return httpInstance.post('/patient/archive/add', data)

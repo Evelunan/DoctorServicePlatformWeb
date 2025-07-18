@@ -14,6 +14,11 @@ export const getFollowUpPlansAPI = () => {
   return httpInstance.get(`/followupPlan/list`)
 }
 
+// 获取随访通知
+export const getNoticeAPI = () => {
+  return httpInstance.get(`/followupPlan/getNotice`)
+}
+
 // 获取单个随访计划列表
 export const getonePlansAPI = (id) => {
   return httpInstance.get(`/followupPlan/get/${id}`)

@@ -169,9 +169,11 @@ import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { WarningFilled, CaretTop, CaretBottom, User, Watermelon, ColdDrink, Sugar, Odometer } from '@element-plus/icons-vue'
 import { getBaseWarningRules, saveWarningRulesAPI, getDiseaseList, getFamilyList, deleteWarningRulesAPI } from '@/api/healthWarning'
+import {useUserStore} from '@/stores/user'
 
+const userStore = useUserStore()
 const activeTab = ref('param')
-const currentUserId = 2 // TODO: 实际项目中应从登录信息获取
+const currentUserId = userStore.userId // TODO: 实际项目中应从登录信息获取
 
 const levelOptions = [
   { label: '极高危', value: 0 },
@@ -236,6 +238,8 @@ const loadFamilyDiseaseList = async () => {
   }
 }
 onMounted(async () => {
+  console.log(userStore.userId)
+  console.log(currentUserId)
   try {
     const res = await getBaseWarningRules()
     if (res && res.data) {

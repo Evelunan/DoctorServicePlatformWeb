@@ -52,7 +52,7 @@
           />
         </el-form-item>
 
-        <el-form-item prop="userType">
+        <!-- <el-form-item prop="userType">
           <el-select
             v-model="form.userType"
             placeholder="请选择用户类型"
@@ -68,7 +68,7 @@
               患者
             </el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
 
         <div class="form-agreement">
           <el-checkbox v-model="agreement">
@@ -175,14 +175,10 @@ const validateAgreement = (rule, value, callback) => {
 
 const rules = {
   account: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, message: '用户名至少3个字符', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9_]+$/, message: '用户名只能包含字母、数字和下划线', trigger: 'blur' }
+    { required: true, message: '请输入用户名', trigger: 'blur' }
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码至少6个字符', trigger: 'blur' },
-    { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, message: '密码必须包含大小写字母和数字', trigger: 'blur' }
+    { required: true, message: '请输入密码', trigger: 'blur' }
   ],
   confirmPassword: [
     { required: true, validator: validateConfirmPassword, trigger: 'blur' }

@@ -106,7 +106,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { User, Phone } from '@element-plus/icons-vue'
-import { getPatientList } from '@/api/patient'
+import { getPatientIdAndName } from '@/api/patient'
 import { createFollowUpPlanAPI } from '@/api/followup'
 
 import { ElMessage } from 'element-plus'
@@ -136,7 +136,8 @@ const plan = ref({
 })
 
 onMounted(async () => {
-  const res = await getPatientList()
+  const res = await getPatientIdAndName()
+  console.log(res.data)
   patients.value = res.data.data
 })
 
